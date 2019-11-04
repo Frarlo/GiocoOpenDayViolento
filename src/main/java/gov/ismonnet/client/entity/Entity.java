@@ -8,7 +8,9 @@ public interface Entity extends Collider {
 
     float getPosY();
 
-    void render();
+    float getMotionX();
+
+    float getMotionY();
 
     void tick();
 }

@@ -3,17 +3,15 @@ package gov.ismonnet.client.entity;
 import gov.ismonnet.client.collider.Collider;
 import gov.ismonnet.client.renderer.Renderer;
 
-public abstract class BaseEntity<T extends BaseEntity> implements Entity {
+import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 
-    protected final Collider collider;
-    protected final Renderer<T> renderer;
+public abstract class BaseEntity implements Entity {
+
+    protected Collider collider;
 
     protected float posX, posY;
-
-    protected BaseEntity(Collider collider, Renderer<T> renderer) {
-        this.collider = collider;
-        this.renderer = renderer;
-    }
+    protected float motionX, motionY;
 
     @Override
     public float getPosX() {
@@ -26,9 +24,13 @@ public abstract class BaseEntity<T extends BaseEntity> implements Entity {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void render() {
-        renderer.render((T) this);
+    public float getMotionX() {
+        return motionX;
+    }
+
+    @Override
+    public float getMotionY() {
+        return motionY;
     }
 
     public abstract void tick();
@@ -36,5 +38,24 @@ public abstract class BaseEntity<T extends BaseEntity> implements Entity {
     @Override
     public boolean collidesWith(Collider collider) {
         return collider.collidesWith(collider);
+    }
+
+    @Override
+    public Collection<Rectangle2D> getCollisionBoxes() {
+        return collider.getCollisionBoxes();
+    }
+
+    @Override
+    public String toString() {
+        return "BaseEntity{" +
+                "collider=" + collider +
+                ", posX=" + posX +
+                ", posY=" + posY +
+                '}';
+    }
+
+    @Override
+    public String toGeogebra() {
+        return collider.toGeogebra();
     }
 }

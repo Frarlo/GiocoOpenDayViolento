@@ -62,6 +62,39 @@ public class QuadCollider implements Collider {
         return collisionBoxList;
     }
 
+    @Override
+    public String toGeogebra() {
+        return "Polygon(" +
+                "(" +
+                xPos.getAsDouble() + "," +
+                yPos.getAsDouble() +
+                "), " +
+                "(" +
+                (xPos.getAsDouble() + width.getAsDouble()) + "," +
+                yPos.getAsDouble() +
+                "), " +
+                "(" +
+                (xPos.getAsDouble() + width.getAsDouble()) + "," +
+                (yPos.getAsDouble() + height.getAsDouble()) +
+                "), " +
+                "(" +
+                xPos.getAsDouble() + "," +
+                (yPos.getAsDouble() + height.getAsDouble()) +
+                ")" +
+                ")";
+    }
+
+    @Override
+    public String toString() {
+        return "QuadCollider{" +
+                "xPos=" + xPos.getAsDouble() +
+                ", yPos=" + yPos.getAsDouble() +
+                ", width=" + width.getAsDouble() +
+                ", height=" + height.getAsDouble() +
+                ", collisionBox=" + collisionBox +
+                '}';
+    }
+
     class SuppliedRectangle2D extends Rectangle2D.Float {
 
         @Override
@@ -97,6 +130,16 @@ public class QuadCollider implements Collider {
         @Override
         public void setRect(Rectangle2D r) {
             throw new UnsupportedOperationException("This quad is read only!");
+        }
+
+        @Override
+        public String toString() {
+            return "SuppliedRectangle2D{" +
+                    "x=" + getX() +
+                    ", y=" + getY() +
+                    ", width=" + getWidth() +
+                    ", height=" + getHeight() +
+                    "}";
         }
     }
 }

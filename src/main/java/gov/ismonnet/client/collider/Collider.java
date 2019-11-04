@@ -8,4 +8,6 @@ public interface Collider {
     boolean collidesWith(Collider collider);
 
     Collection<Rectangle2D> getCollisionBoxes();
+
+    String toGeogebra();
 }

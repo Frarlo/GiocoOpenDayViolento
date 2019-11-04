@@ -31,4 +31,18 @@ public class CompositeCollider implements Collider {
     public Collection<Rectangle2D> getCollisionBoxes() {
         return collisionBoxes;
     }
+
+    @Override
+    public String toGeogebra() {
+        return "ESEGUI({\"" + colliders.stream()
+                .map(Collider::toGeogebra)
+                .collect(Collectors.joining("\", \"")) + "\"})";
+    }
+
+    @Override
+    public String toString() {
+        return "CompositeCollider{" +
+                "colliders=" + colliders +
+                '}';
+    }
 }

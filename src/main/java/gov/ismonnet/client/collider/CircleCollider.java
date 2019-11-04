@@ -1,10 +1,14 @@
 package gov.ismonnet.client.collider;
 
 import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.DoubleSupplier;
 
 public class CircleCollider implements Collider {
+
+    private static final float MIN_RADIUS_STEP = 5;
 
     private final DoubleSupplier xPos;
     private final DoubleSupplier yPos;
@@ -23,11 +27,68 @@ public class CircleCollider implements Collider {
         makeCollider();
     }
 
-    private void makeCollider() {
-        this.currCollider = new CompositeCollider(
+    public CircleCollider(float xPos, float yPos, float radius) {
+        this(() -> xPos, () -> yPos, () -> radius);
+    }
 
-        );
-        this.oldRadius = (float) radius.getAsDouble();
+    private void makeCollider() {
+        float radius = (float) this.radius.getAsDouble();
+
+        final List<Collider> colliders = new ArrayList<>();
+        if(radius < MIN_RADIUS_STEP) {
+            colliders.add(new QuadCollider(
+                    () -> xPos.getAsDouble() - radius / 2F,
+                    () -> yPos.getAsDouble() - radius / 2F,
+                    () -> radius));
+        } else {
+            final float radiusStep = radius / 10;
+
+            int i = 0;
+            for(; (i + 1) * radiusStep < radius; i++) {
+                {
+                    final float yRelPos = i * radiusStep;
+                    final float height = radiusStep;
+                    // Circle equation => pow(x – h, 2) + pow(y – k, 2) = pow(r, 2)
+                    // where center(h, k), radius is r
+                    // If we use (0, 0) as center we can substitute (yRelPos + height) as y
+                    // So pow(x, 2) + pow(y, 2) = pow(r, 2)
+                    // x = +- sqrt(pow(r, 2) - pow(y, 2))
+                    final float xRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(yRelPos + height, 2));
+                    final float width = 2 * xRelPos;
+
+                    colliders.add(new QuadCollider(
+                            () -> xPos.getAsDouble() - xRelPos,
+                            () -> yPos.getAsDouble() + yRelPos,
+                            () -> width,
+                            () -> height));
+                    colliders.add(new QuadCollider(
+                            () -> xPos.getAsDouble() - xRelPos,
+                            () -> yPos.getAsDouble() - yRelPos - height,
+                            () -> width,
+                            () -> height));
+                }
+
+                final float xRelPos = i * radiusStep;
+                final float width = radiusStep;
+
+                final float yRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(xRelPos + width, 2));
+                final float height = 2 * yRelPos;
+
+                colliders.add(new QuadCollider(
+                        () -> xPos.getAsDouble() + xRelPos,
+                        () -> yPos.getAsDouble() - yRelPos,
+                        () -> width,
+                        () -> height));
+                colliders.add(new QuadCollider(
+                        () -> xPos.getAsDouble() - xRelPos - width,
+                        () -> yPos.getAsDouble() - yRelPos,
+                        () -> width,
+                        () -> height));
+            }
+        }
+
+        this.currCollider = new CompositeCollider(colliders);
+        this.oldRadius = radius;
     }
 
     private Collider getCurrCollider() {
@@ -38,11 +99,26 @@ public class CircleCollider implements Collider {
 
     @Override
     public boolean collidesWith(Collider collider) {
-        return false;
+        return getCurrCollider().collidesWith(collider);
     }
 
     @Override
     public Collection<Rectangle2D> getCollisionBoxes() {
-        return null;
+        return getCurrCollider().getCollisionBoxes();
+    }
+
+    @Override
+    public String toGeogebra() {
+        return getCurrCollider().toGeogebra();
+    }
+
+    @Override
+    public String toString() {
+        return "CircleCollider{" +
+                "xPos=" + xPos.getAsDouble() +
+                ", yPos=" + yPos.getAsDouble() +
+                ", radius=" + radius.getAsDouble() +
+                ", actualCollider=" + getCurrCollider() +
+                '}';
     }
 }
