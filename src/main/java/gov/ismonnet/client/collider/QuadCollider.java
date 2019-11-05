@@ -52,7 +52,7 @@ public class QuadCollider implements Collider {
     @Override
     public boolean collidesWith(Collider collider) {
         for(Rectangle2D rect : collider.getCollisionBoxes())
-            if(rect.contains(collisionBox))
+            if(rect.intersects(collisionBox))
                 return true;
         return false;
     }
@@ -95,7 +95,7 @@ public class QuadCollider implements Collider {
                 '}';
     }
 
-    class SuppliedRectangle2D extends Rectangle2D.Float {
+    class SuppliedRectangle2D extends Rectangle2D {
 
         @Override
         public double getX() {
@@ -118,8 +118,8 @@ public class QuadCollider implements Collider {
         }
 
         @Override
-        public void setRect(float x, float y, float w, float h) {
-            throw new UnsupportedOperationException("This quad is read only!");
+        public boolean isEmpty() {
+            return (getWidth() <= 0.0f) || (getHeight() <= 0.0f);
         }
 
         @Override
@@ -130,6 +130,55 @@ public class QuadCollider implements Collider {
         @Override
         public void setRect(Rectangle2D r) {
             throw new UnsupportedOperationException("This quad is read only!");
+        }
+
+        @Override
+        public int outcode(double x, double y) {
+            int out = 0;
+            if (getWidth() <= 0) {
+                out |= OUT_LEFT | OUT_RIGHT;
+            } else if (x < getX()) {
+                out |= OUT_LEFT;
+            } else if (x > getY() + getWidth()) {
+                out |= OUT_RIGHT;
+            }
+            if (getHeight() <= 0) {
+                out |= OUT_TOP | OUT_BOTTOM;
+            } else if (y < getY()) {
+                out |= OUT_TOP;
+            } else if (y > getY() + getHeight()) {
+                out |= OUT_BOTTOM;
+            }
+            return out;
+        }
+
+        @Override
+        public Rectangle2D getBounds2D() {
+            return new Double(getX(), getY(), getWidth(), getHeight());
+        }
+
+        @Override
+        public Rectangle2D createIntersection(Rectangle2D r) {
+            Rectangle2D dest;
+            if (r instanceof Float) {
+                dest = new Rectangle2D.Float();
+            } else {
+                dest = new Rectangle2D.Double();
+            }
+            Rectangle2D.intersect(this, r, dest);
+            return dest;
+        }
+
+        @Override
+        public Rectangle2D createUnion(Rectangle2D r) {
+            Rectangle2D dest;
+            if (r instanceof Float) {
+                dest = new Rectangle2D.Float();
+            } else {
+                dest = new Rectangle2D.Double();
+            }
+            Rectangle2D.union(this, r, dest);
+            return dest;
         }
 
         @Override

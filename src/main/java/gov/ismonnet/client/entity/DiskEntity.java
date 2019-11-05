@@ -15,6 +15,8 @@ public class DiskEntity extends BaseEntity {
 
     private final Rink rink;
 
+    private final float radius;
+
     private final Collider prevPosXCollider;
     private final Collider prevPosYCollider;
     private float prevPosX;
@@ -32,6 +34,7 @@ public class DiskEntity extends BaseEntity {
 
         this.posX = startX;
         this.posY = startY;
+        this.radius = radius;
 
         this.motionX = motionX;
         this.motionY = motionY;
@@ -69,5 +72,14 @@ public class DiskEntity extends BaseEntity {
         motionY = motionY > 0 ?
                 Math.max(0, motionY - MOTION_STEP) :
                 Math.min(0, motionY + MOTION_STEP);
+    }
+
+    public void addMotion(float motionX, float motionY) {
+        this.motionX += motionX;
+        this.motionY += motionY;
+    }
+
+    public float getRadius() {
+        return radius;
     }
 }

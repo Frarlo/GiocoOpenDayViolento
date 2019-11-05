@@ -8,8 +8,6 @@ import java.util.function.DoubleSupplier;
 
 public class CircleCollider implements Collider {
 
-    private static final float MIN_RADIUS_STEP = 5;
-
     private final DoubleSupplier xPos;
     private final DoubleSupplier yPos;
     private final DoubleSupplier radius;
@@ -33,58 +31,50 @@ public class CircleCollider implements Collider {
 
     private void makeCollider() {
         float radius = (float) this.radius.getAsDouble();
+        final float diameter = 2F * radius;
+        final float radiusStep = diameter / 20;
 
         final List<Collider> colliders = new ArrayList<>();
-        if(radius < MIN_RADIUS_STEP) {
-            colliders.add(new QuadCollider(
-                    () -> xPos.getAsDouble() - radius / 2F,
-                    () -> yPos.getAsDouble() - radius / 2F,
-                    () -> radius));
-        } else {
-            final float radiusStep = radius / 10;
-
-            int i = 0;
-            for(; (i + 1) * radiusStep < radius; i++) {
-                {
-                    final float yRelPos = i * radiusStep;
-                    final float height = radiusStep;
-                    // Circle equation => pow(x – h, 2) + pow(y – k, 2) = pow(r, 2)
-                    // where center(h, k), radius is r
-                    // If we use (0, 0) as center we can substitute (yRelPos + height) as y
-                    // So pow(x, 2) + pow(y, 2) = pow(r, 2)
-                    // x = +- sqrt(pow(r, 2) - pow(y, 2))
-                    final float xRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(yRelPos + height, 2));
-                    final float width = 2 * xRelPos;
-
-                    colliders.add(new QuadCollider(
-                            () -> xPos.getAsDouble() - xRelPos,
-                            () -> yPos.getAsDouble() + yRelPos,
-                            () -> width,
-                            () -> height));
-                    colliders.add(new QuadCollider(
-                            () -> xPos.getAsDouble() - xRelPos,
-                            () -> yPos.getAsDouble() - yRelPos - height,
-                            () -> width,
-                            () -> height));
-                }
-
-                final float xRelPos = i * radiusStep;
-                final float width = radiusStep;
-
-                final float yRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(xRelPos + width, 2));
-                final float height = 2 * yRelPos;
+        for(int i = 0; (i + 1) * radiusStep < diameter; i++) {
+            {
+                final float yRelPos = i * radiusStep;
+                final float height = radiusStep;
+                // Circle equation => pow(x – h, 2) + pow(y – k, 2) = pow(r, 2)
+                // where center(h, k), radius is r
+                // If we use (0, 0) as center we can substitute (yRelPos + height) as y
+                // So pow(x, 2) + pow(y, 2) = pow(r, 2)
+                // x = +- sqrt(pow(r, 2) - pow(y, 2))
+                final float xRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(yRelPos + height, 2));
+                final float width = 2 * xRelPos;
 
                 colliders.add(new QuadCollider(
-                        () -> xPos.getAsDouble() + xRelPos,
-                        () -> yPos.getAsDouble() - yRelPos,
+                        () -> xPos.getAsDouble() - xRelPos,
+                        () -> yPos.getAsDouble() + yRelPos,
                         () -> width,
                         () -> height));
                 colliders.add(new QuadCollider(
-                        () -> xPos.getAsDouble() - xRelPos - width,
-                        () -> yPos.getAsDouble() - yRelPos,
+                        () -> xPos.getAsDouble() - xRelPos,
+                        () -> yPos.getAsDouble() - yRelPos - height,
                         () -> width,
                         () -> height));
             }
+
+            final float xRelPos = i * radiusStep;
+            final float width = radiusStep;
+
+            final float yRelPos = (float) Math.sqrt(Math.pow(radius, 2) - Math.pow(xRelPos + width, 2));
+            final float height = 2 * yRelPos;
+
+            colliders.add(new QuadCollider(
+                    () -> xPos.getAsDouble() + xRelPos,
+                    () -> yPos.getAsDouble() - yRelPos,
+                    () -> width,
+                    () -> height));
+            colliders.add(new QuadCollider(
+                    () -> xPos.getAsDouble() - xRelPos - width,
+                    () -> yPos.getAsDouble() - yRelPos,
+                    () -> width,
+                    () -> height));
         }
 
         this.currCollider = new CompositeCollider(colliders);
