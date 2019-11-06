@@ -74,6 +74,13 @@ public class PuckEntity extends BaseEntity {
                 Math.min(0, motionY + MOTION_STEP);
     }
 
+    public void reset(float posX, float posY, float motionX, float motionY) {
+        this.posX = this.prevPosX = posX;
+        this.posY = this.prevPosY = posY;
+        this.motionX = motionX;
+        this.motionY = motionY;
+    }
+
     public void addMotion(float motionX, float motionY) {
         this.motionX += motionX;
         this.motionY += motionY;

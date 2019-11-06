@@ -36,7 +36,7 @@ public abstract class BaseEntity implements Entity {
 
     @Override
     public boolean collidesWith(Collider collider) {
-        return collider.collidesWith(collider);
+        return this.collider.collidesWith(collider);
     }
 
     @Override

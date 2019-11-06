@@ -1,8 +1,5 @@
 package gov.ismonnet.client;
 
 public interface Client {
-
-    void start();
-
-    void stop();
+    void handleTicks();
 }

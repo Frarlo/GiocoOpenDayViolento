@@ -8,8 +8,8 @@ import javax.inject.Inject;
 @AutoFactory
 public class WallEntity extends BaseEntity {
 
-    private float width;
-    private float height;
+    private final float width;
+    private final float height;
 
     @Inject WallEntity(float startX, float startY, float width, float height) {
         this.collider = new QuadCollider(startX, startY, width, height);
@@ -22,8 +22,7 @@ public class WallEntity extends BaseEntity {
 
     @Override
     public void tick() {
-        this.motionX = 0;
-        this.motionY = 0;
+        this.motionX = this.motionY = 0;
     }
 
     public float getWidth() {

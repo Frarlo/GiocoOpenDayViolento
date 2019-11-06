@@ -1,15 +1,14 @@
 package gov.ismonnet.client.renderer.swing;
 
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 import gov.ismonnet.client.Client;
 import gov.ismonnet.client.entity.Entity;
 import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderService;
-import gov.ismonnet.client.renderer.RenderServiceFactory;
 import gov.ismonnet.client.renderer.Renderer;
 import gov.ismonnet.client.table.Table;
 import gov.ismonnet.client.util.ScaledResolution;
+import gov.ismonnet.lifecycle.LifeCycle;
+import gov.ismonnet.lifecycle.LifeCycleService;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -20,38 +19,35 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@AutoFactory(implementing = RenderServiceFactory.class)
-public class SwingRenderService extends JPanel implements RenderService {
+public class SwingRenderService extends JPanel implements RenderService, LifeCycle {
 
     private static final Color BACKGROUND_COLOR = new Color(33, 33, 33);
 
+    private final Client client;
+    private final Table table;
+
     private final JFrame frame;
     private ScaledResolution scaledResolution;
-
-    private final Table table;
 
     private final Map<Class, Renderer> renderers;
     private final Renderer<RenderContext, Object> fallbackRenderer;
     private final Renderer<SwingRenderContext, Entity> axisAlignedBBsRenderer;
 
-    private final Runnable ticksHandler;
-
     private volatile boolean stopClient = true;
 
     @SuppressWarnings("unchecked")
-    @Inject SwingRenderService(@Provided Client client,
-                               @Provided Table table,
-                               @Provided Map<Class<?>, Renderer> renderers,
-                               @Provided Renderer<RenderContext, Object> fallbackRenderer,
-                               @Provided Renderer axisAlignedBBsRenderer,
-                               Runnable ticksHandler) {
+    @Inject SwingRenderService(Client client,
+                               Table table,
+                               Map<Class<?>, Renderer> renderers,
+                               Renderer<RenderContext, Object> fallbackRenderer,
+                               Renderer axisAlignedBBsRenderer,
+                               LifeCycleService lifeCycleService) {
+        this.client = client;
         this.table = table;
 
         this.renderers = Collections.unmodifiableMap(new HashMap<>(renderers));
         this.fallbackRenderer = fallbackRenderer;
         this.axisAlignedBBsRenderer = axisAlignedBBsRenderer;
-
-        this.ticksHandler = ticksHandler;
 
         // Swing swong
 
@@ -59,7 +55,7 @@ public class SwingRenderService extends JPanel implements RenderService {
             @Override
             public void dispose() {
                 if(stopClient)
-                    client.stop();
+                    lifeCycleService.stop();
                 super.dispose();
             }
         };
@@ -72,7 +68,20 @@ public class SwingRenderService extends JPanel implements RenderService {
         this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         addComponentListener(new ResizeHandler());
 
-        this.frame.setVisible(true);
+        lifeCycleService.register(this);
+    }
+
+    @Override
+    public void start() {
+        frame.setVisible(true);
+    }
+
+    @Override
+    public void stop() {
+        frame.setVisible(false);
+
+        stopClient = false;
+        frame.dispose();
     }
 
     @Override
@@ -81,7 +90,7 @@ public class SwingRenderService extends JPanel implements RenderService {
         if(!(g instanceof Graphics2D))
             throw new AssertionError("Swing did not create a 2d graphics component :O");
 
-        ticksHandler.run();
+        client.handleTicks();
 
         final SwingRenderContext ctx = new SwingRenderContext((Graphics2D) g);
 
@@ -104,20 +113,22 @@ public class SwingRenderService extends JPanel implements RenderService {
 
     private void setupScaling(SwingRenderContext ctx, boolean enable) {
         if (enable) {
-            ctx.translate(scaledResolution.getWidthDifference() / 2, scaledResolution.getHeightDifference() / 2);
+            if(table.getSide() == Table.Side.RIGHT) {
+                ctx.scale(-1, 1);
+                ctx.translate(-getWidth(), 0);
+            }
+
+            ctx.translate(scaledResolution.getWidthDifference(), scaledResolution.getHeightDifference() / 2);
             ctx.scale(scaledResolution.getWidthScaleFactor(), scaledResolution.getHeightScaleFactor());
         } else {
             ctx.scale(1 / scaledResolution.getWidthScaleFactor(), 1 / scaledResolution.getHeightScaleFactor());
-            ctx.translate(-scaledResolution.getWidthDifference() / 2, -scaledResolution.getHeightDifference() / 2);
+            ctx.translate(-scaledResolution.getWidthDifference(), -scaledResolution.getHeightDifference() / 2);
+
+            if(table.getSide() == Table.Side.RIGHT) {
+                ctx.scale(-1, 1);
+                ctx.translate(getWidth(), 0);
+            }
         }
-    }
-
-    @Override
-    public void stop() {
-        frame.setVisible(false);
-
-        stopClient = false;
-        frame.dispose();
     }
 
     private class ResizeHandler extends ComponentAdapter {
