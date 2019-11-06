@@ -27,8 +27,8 @@ public abstract class SwingRendererModule {
     abstract Renderer<RenderContext, Object> fallbackRenderer(EmptyRenderer emptyRenderer);
 
     @Provides @Singleton
-    static Renderer collisionRenderer(CollisionBoxRenderer renderer,
-                                      EmptyRenderer emptyRenderer) {
+    static Renderer axisAlignedBBsRenderer(AxisAlignedBBsRenderer renderer,
+                                           EmptyRenderer emptyRenderer) {
         return DRAW_COLLISION_BOXES ? renderer : emptyRenderer;
     }
 

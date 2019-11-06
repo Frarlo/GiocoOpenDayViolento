@@ -13,9 +13,9 @@ class DiskRenderer implements Renderer<SwingRenderContext, DiskEntity> {
     @Override
     public void render(SwingRenderContext ctx, DiskEntity toRender) {
         ctx.fillBorderedCircle(
-                (int) toRender.getPosX(),
-                (int) toRender.getPosY(),
-                (int) toRender.getRadius(),
+                toRender.getPosX(),
+                toRender.getPosY(),
+                toRender.getRadius(),
                 Color.black, Color.red);
     }
 }

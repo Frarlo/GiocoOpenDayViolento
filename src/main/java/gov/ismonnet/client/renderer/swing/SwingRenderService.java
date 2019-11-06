@@ -2,6 +2,7 @@ package gov.ismonnet.client.renderer.swing;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import gov.ismonnet.client.Client;
 import gov.ismonnet.client.entity.Entity;
 import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderService;
@@ -22,6 +23,8 @@ import java.util.Map;
 @AutoFactory(implementing = RenderServiceFactory.class)
 public class SwingRenderService extends JPanel implements RenderService {
 
+    private static final Color BACKGROUND_COLOR = new Color(33, 33, 33);
+
     private final JFrame frame;
     private ScaledResolution scaledResolution;
 
@@ -29,21 +32,24 @@ public class SwingRenderService extends JPanel implements RenderService {
 
     private final Map<Class, Renderer> renderers;
     private final Renderer<RenderContext, Object> fallbackRenderer;
-    private final Renderer<SwingRenderContext, Entity> collisionRenderer;
+    private final Renderer<SwingRenderContext, Entity> axisAlignedBBsRenderer;
 
     private final Runnable ticksHandler;
 
+    private volatile boolean stopClient = true;
+
     @SuppressWarnings("unchecked")
-    @Inject SwingRenderService(@Provided Rink rink,
+    @Inject SwingRenderService(@Provided Client client,
+                               @Provided Rink rink,
                                @Provided Map<Class<?>, Renderer> renderers,
                                @Provided Renderer<RenderContext, Object> fallbackRenderer,
-                               @Provided Renderer collisionRenderer,
+                               @Provided Renderer axisAlignedBBsRenderer,
                                Runnable ticksHandler) {
         this.rink = rink;
 
         this.renderers = Collections.unmodifiableMap(new HashMap<>(renderers));
         this.fallbackRenderer = fallbackRenderer;
-        this.collisionRenderer = collisionRenderer;
+        this.axisAlignedBBsRenderer = axisAlignedBBsRenderer;
 
         this.ticksHandler = ticksHandler;
 
@@ -52,6 +58,9 @@ public class SwingRenderService extends JPanel implements RenderService {
         this.frame = new JFrame("SwingGame") {
             @Override
             public void dispose() {
+                if(stopClient)
+                    client.stop();
+                super.dispose();
             }
         };
         this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -77,7 +86,7 @@ public class SwingRenderService extends JPanel implements RenderService {
         final SwingRenderContext ctx = new SwingRenderContext((Graphics2D) g);
 
         ctx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        ctx.setBackground(new Color(33, 33, 33));
+        ctx.setBackground(BACKGROUND_COLOR);
         ctx.clearRect(0, 0, getWidth(), getHeight());
 
         setupScaling(ctx, true);
@@ -85,7 +94,7 @@ public class SwingRenderService extends JPanel implements RenderService {
         renderers.getOrDefault(Rink.class, fallbackRenderer).render(ctx, rink);
         rink.getEntities().forEach(entity -> {
             renderers.getOrDefault(entity.getClass(), fallbackRenderer).render(ctx, entity);
-            collisionRenderer.render(ctx, entity);
+            axisAlignedBBsRenderer.render(ctx, entity);
         });
 
         setupScaling(ctx, false);
@@ -101,6 +110,14 @@ public class SwingRenderService extends JPanel implements RenderService {
             ctx.scale(1 / scaledResolution.getWidthScaleFactor(), 1 / scaledResolution.getHeightScaleFactor());
             ctx.translate(-scaledResolution.getWidthDifference() / 2, -scaledResolution.getHeightDifference() / 2);
         }
+    }
+
+    @Override
+    public void stop() {
+        frame.setVisible(false);
+
+        stopClient = false;
+        frame.dispose();
     }
 
     private class ResizeHandler extends ComponentAdapter {

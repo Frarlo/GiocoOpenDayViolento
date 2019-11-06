@@ -6,17 +6,17 @@ import gov.ismonnet.client.renderer.Renderer;
 import javax.inject.Inject;
 import java.awt.*;
 
-public class CollisionBoxRenderer implements Renderer<SwingRenderContext, Entity> {
+public class AxisAlignedBBsRenderer implements Renderer<SwingRenderContext, Entity> {
 
-    @Inject CollisionBoxRenderer() {}
+    @Inject AxisAlignedBBsRenderer() {}
 
     @Override
     public void render(SwingRenderContext ctx, Entity toRender) {
-        ctx.setColor(Color.blue);
-        toRender.getCollisionBoxes().forEach(c -> ctx.fillRect(
+        toRender.getAxisAlignedBBs().forEach(c -> ctx.fillBorderedRect(
                 (int) c.getX(),
                 (int) c.getY(),
                 (int) c.getWidth(),
-                (int) c.getHeight()));
+                (int) c.getHeight(),
+                Color.white, Color.blue));
     }
 }

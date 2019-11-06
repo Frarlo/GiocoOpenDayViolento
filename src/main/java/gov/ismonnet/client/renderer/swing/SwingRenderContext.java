@@ -5,7 +5,7 @@ import gov.ismonnet.client.renderer.RenderContext;
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ImageObserver;
@@ -18,44 +18,14 @@ class SwingRenderContext extends Graphics2D implements RenderContext {
 
     private final Graphics2D g2d;
 
-    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
-    private VerticalAlignment verticalAlignment = VerticalAlignment.BOTTOM;
-
     public SwingRenderContext(Graphics2D g2d) {
         this.g2d = g2d;
     }
 
-    // Some more methods
+    // Aligned strings
 
-    public void fillBorderedRect(int x, int y,
-                                 int width, int height,
-                                 Color border,
-                                 Color inside) {
-        g2d.setColor(inside);
-        g2d.fillRect(x, y, width, height);
-        g2d.setColor(border);
-        g2d.drawRect(x, y, width, height);
-    }
-
-    public void fillBorderedRoundRect(int x, int y,
-                                      int width, int height,
-                                      int diameter,
-                                      Color border,
-                                      Color inside) {
-        g2d.setColor(inside);
-        g2d.fillRoundRect(x, y, width, height, diameter, diameter);
-        g2d.setColor(border);
-        g2d.drawRoundRect(x, y, width, height, diameter, diameter);
-    }
-
-    public void fillBorderedCircle(int centerX, int centerY, int radius,
-                                   Color border, Color inside) {
-        final int diameter = 2 * radius;
-        g2d.setColor(inside);
-        g2d.fillOval(centerX - diameter / 2, centerY - diameter / 2, diameter, diameter);
-        g2d.setColor(border);
-        g2d.drawOval(centerX - diameter / 2, centerY - diameter / 2, diameter, diameter);
-    }
+    private HorizontalAlignment horizontalAlignment = HorizontalAlignment.LEFT;
+    private VerticalAlignment verticalAlignment = VerticalAlignment.BOTTOM;
 
     @Override
     public void drawString(String str, int x, int y) {
@@ -107,6 +77,139 @@ class SwingRenderContext extends Graphics2D implements RenderContext {
 
     public enum VerticalAlignment {
         TOP, BOTTOM, CENTER
+    }
+
+    // Bordered methods
+
+    public void fillBorderedRect(int x, int y,
+                                 int width, int height,
+                                 Color border, Color inside) {
+        setColor(inside);
+        fillRect(x, y, width, height);
+        setColor(border);
+        drawRect(x, y, width, height);
+    }
+
+    public void fillBorderedRect(float x, float y,
+                                 float width, float height,
+                                 Color border, Color inside) {
+        setColor(inside);
+        fillRect(x, y, width, height);
+        setColor(border);
+        drawRect(x, y, width, height);
+    }
+
+    public void fillBorderedRoundRect(int x, int y,
+                                      int width, int height,
+                                      int diameter,
+                                      Color border, Color inside) {
+        setColor(inside);
+        fillRoundRect(x, y, width, height, diameter, diameter);
+        setColor(border);
+        drawRoundRect(x, y, width, height, diameter, diameter);
+    }
+
+    public void fillBorderedRoundRect(float x, float y,
+                                      float width, float height,
+                                      float diameter,
+                                      Color border, Color inside) {
+        setColor(inside);
+        fillRoundRect(x, y, width, height, diameter, diameter);
+        setColor(border);
+        drawRoundRect(x, y, width, height, diameter, diameter);
+    }
+
+    public void fillBorderedCircle(int centerX, int centerY, int radius,
+                                   Color border, Color inside) {
+        setColor(inside);
+        fillCircle(centerX, centerY, radius);
+        setColor(border);
+        drawCircle(centerX, centerY, radius);
+    }
+
+    public void fillBorderedCircle(float centerX, float centerY, float radius,
+                                   Color border, Color inside) {
+        setColor(inside);
+        fillCircle(centerX, centerY, radius);
+        setColor(border);
+        drawCircle(centerX, centerY, radius);
+    }
+
+    // Circle methods
+
+    public void drawCircle(int centerX, int centerY, int radius) {
+        g2d.drawOval(centerX - radius, centerY - radius, 2 * radius, 2 * radius);
+    }
+
+    public void fillCircle(int centerX, int centerY, int radius) {
+        g2d.fillOval(centerX - radius, centerY - radius, 2 * radius, 2 * radius);
+    }
+
+    public void drawCircle(float centerX, float centerY, float radius) {
+        drawOval(centerX - radius, centerY - radius, 2 * radius, 2 * radius);
+    }
+
+    public void fillCircle(float centerX, float centerY, float radius) {
+        fillOval(centerX - radius, centerY - radius, 2 * radius, 2 * radius);
+    }
+
+    // Float overloads
+
+    private static final ThreadLocal<Rectangle2D.Float> RECT = ThreadLocal.withInitial(Rectangle2D.Float::new);
+    private static final ThreadLocal<RoundRectangle2D.Float> ROUND_RECT = ThreadLocal.withInitial(RoundRectangle2D.Float::new);
+    private static final ThreadLocal<Ellipse2D.Float> OVAL = ThreadLocal.withInitial(Ellipse2D.Float::new);
+    private static final ThreadLocal<Arc2D.Float> ARC = ThreadLocal.withInitial(Arc2D.Float::new);
+
+    public void fillRect(float x, float y, float width, float height) {
+        final Rectangle2D.Float shape = RECT.get();
+        shape.setRect(x, y, width, height);
+        fill(shape);
+    }
+
+    public void drawRect(float x, float y, float width, float height) {
+        final Rectangle2D.Float shape = RECT.get();
+        shape.setRect(x, y, width, height);
+        draw(shape);
+    }
+
+    public void drawRoundRect(float x, float y,
+                              float width, float height,
+                              float arcWidth, float arcHeight) {
+        final RoundRectangle2D.Float shape = ROUND_RECT.get();
+        shape.setRoundRect(x, y, width, height, arcWidth, arcHeight);
+        draw(shape);
+    }
+
+    public void fillRoundRect(float x, float y,
+                              float width, float height,
+                              float arcWidth, float arcHeight) {
+        final RoundRectangle2D.Float shape = ROUND_RECT.get();
+        shape.setRoundRect(x, y, width, height, arcWidth, arcHeight);
+        fill(shape);
+    }
+
+    public void drawOval(float x, float y, float width, float height) {
+        final Ellipse2D.Float shape = OVAL.get();
+        shape.setFrame(x, y, width, height);
+        draw(shape);
+    }
+
+    public void fillOval(float x, float y, float width, float height) {
+        final Ellipse2D.Float shape = OVAL.get();
+        shape.setFrame(x, y, width, height);
+        fill(shape);
+    }
+
+    public void drawArc(float x, float y, float width, float height, float startAngle, float arcAngle) {
+        final Arc2D.Float shape = ARC.get();
+        shape.setArc(x, y, width, height, startAngle, arcAngle, Arc2D.OPEN);
+        draw(shape);
+    }
+
+    public void fillArc(float x, float y, float width, float height, float startAngle, float arcAngle) {
+        final Arc2D.Float shape = ARC.get();
+        shape.setArc(x, y, width, height, startAngle, arcAngle, Arc2D.PIE);
+        draw(shape);
     }
 
     // Graphics2D delegate

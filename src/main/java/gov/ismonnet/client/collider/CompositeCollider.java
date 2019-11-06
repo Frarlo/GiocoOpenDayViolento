@@ -14,7 +14,7 @@ public class CompositeCollider implements Collider {
     public CompositeCollider(Collection<Collider> colliders) {
         this.colliders = new ArrayList<>(colliders);
         this.collisionBoxes = colliders.stream()
-                .map(Collider::getCollisionBoxes)
+                .map(Collider::getAxisAlignedBBs)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
     }
@@ -28,7 +28,7 @@ public class CompositeCollider implements Collider {
     }
 
     @Override
-    public Collection<Rectangle2D> getCollisionBoxes() {
+    public Collection<Rectangle2D> getAxisAlignedBBs() {
         return collisionBoxes;
     }
 

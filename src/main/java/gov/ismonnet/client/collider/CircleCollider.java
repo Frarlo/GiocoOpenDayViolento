@@ -93,8 +93,8 @@ public class CircleCollider implements Collider {
     }
 
     @Override
-    public Collection<Rectangle2D> getCollisionBoxes() {
-        return getCurrCollider().getCollisionBoxes();
+    public Collection<Rectangle2D> getAxisAlignedBBs() {
+        return getCurrCollider().getAxisAlignedBBs();
     }
 
     @Override

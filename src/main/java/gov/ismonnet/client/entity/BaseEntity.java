@@ -1,7 +1,6 @@
 package gov.ismonnet.client.entity;
 
 import gov.ismonnet.client.collider.Collider;
-import gov.ismonnet.client.renderer.Renderer;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;
@@ -41,8 +40,8 @@ public abstract class BaseEntity implements Entity {
     }
 
     @Override
-    public Collection<Rectangle2D> getCollisionBoxes() {
-        return collider.getCollisionBoxes();
+    public Collection<Rectangle2D> getAxisAlignedBBs() {
+        return collider.getAxisAlignedBBs();
     }
 
     @Override

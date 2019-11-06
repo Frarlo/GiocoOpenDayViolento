@@ -13,6 +13,6 @@ class RinkRenderer implements Renderer<SwingRenderContext, Rink> {
     @Override
     public void render(SwingRenderContext ctx, Rink toRender) {
         ctx.setColor(Color.black);
-        ctx.fillRect(0, 0, (int) toRender.getWidth(), (int) toRender.getHeight());
+        ctx.fillRect(0, 0, toRender.getWidth(), toRender.getHeight());
     }
 }

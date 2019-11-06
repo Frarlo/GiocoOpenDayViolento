@@ -7,7 +7,7 @@ public interface Collider {
 
     boolean collidesWith(Collider collider);
 
-    Collection<Rectangle2D> getCollisionBoxes();
+    Collection<Rectangle2D> getAxisAlignedBBs();
 
     String toGeogebra();
 }
