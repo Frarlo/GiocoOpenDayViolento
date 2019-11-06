@@ -5,13 +5,13 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
-import gov.ismonnet.client.entity.DiskEntity;
+import gov.ismonnet.client.entity.PuckEntity;
 import gov.ismonnet.client.entity.WallEntity;
 import gov.ismonnet.client.renderer.EmptyRenderer;
 import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderServiceFactory;
 import gov.ismonnet.client.renderer.Renderer;
-import gov.ismonnet.client.rink.Rink;
+import gov.ismonnet.client.table.Table;
 
 import javax.inject.Singleton;
 
@@ -32,12 +32,12 @@ public abstract class SwingRendererModule {
         return DRAW_COLLISION_BOXES ? renderer : emptyRenderer;
     }
 
-    @Binds @IntoMap @ClassKey(Rink.class)
-    abstract Renderer rinkRenderer(RinkRenderer rinkRenderer);
+    @Binds @IntoMap @ClassKey(Table.class)
+    abstract Renderer tableRenderer(TableRenderer tableRenderer);
 
     @Binds @IntoMap @ClassKey(WallEntity.class)
     abstract Renderer wallRenderer(WallRenderer wallRenderer);
 
-    @Binds @IntoMap @ClassKey(DiskEntity.class)
-    abstract Renderer diskRenderer(DiskRenderer diskRenderer);
+    @Binds @IntoMap @ClassKey(PuckEntity.class)
+    abstract Renderer puckRenderer(PuckRenderer puckRenderer);
 }

@@ -1,11 +1,11 @@
-package gov.ismonnet.client.rink;
+package gov.ismonnet.client.table;
 
 import gov.ismonnet.client.entity.Entity;
 import gov.ismonnet.client.entity.WallEntity;
 
 import java.util.Collection;
 
-public interface Rink {
+public interface Table {
 
     float getWidth();
 

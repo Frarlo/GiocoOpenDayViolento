@@ -1,11 +1,11 @@
-package gov.ismonnet.client.rink;
+package gov.ismonnet.client.table;
 
 import gov.ismonnet.client.entity.*;
 
 import javax.inject.Inject;
 import java.util.*;
 
-class RinkImpl implements Rink {
+class TableImpl implements Table {
 
     private static final float WALL_THICKNESS = 10;
 
@@ -17,7 +17,8 @@ class RinkImpl implements Rink {
 
     private final WallEntity[] walls;
 
-    @Inject RinkImpl(WallEntityFactory wallFactory) {
+    @Inject
+    TableImpl(WallEntityFactory wallFactory) {
 
         this.width = 750;
         this.height = 500;

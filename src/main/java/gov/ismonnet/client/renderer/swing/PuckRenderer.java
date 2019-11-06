@@ -1,17 +1,17 @@
 package gov.ismonnet.client.renderer.swing;
 
-import gov.ismonnet.client.entity.DiskEntity;
+import gov.ismonnet.client.entity.PuckEntity;
 import gov.ismonnet.client.renderer.Renderer;
 
 import javax.inject.Inject;
 import java.awt.*;
 
-class DiskRenderer implements Renderer<SwingRenderContext, DiskEntity> {
+class PuckRenderer implements Renderer<SwingRenderContext, PuckEntity> {
 
-    @Inject DiskRenderer() {}
+    @Inject PuckRenderer() {}
 
     @Override
-    public void render(SwingRenderContext ctx, DiskEntity toRender) {
+    public void render(SwingRenderContext ctx, PuckEntity toRender) {
         ctx.fillBorderedCircle(
                 toRender.getPosX(),
                 toRender.getPosY(),

@@ -2,18 +2,18 @@ package gov.ismonnet.client.entity;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
-import gov.ismonnet.client.rink.Rink;
+import gov.ismonnet.client.table.Table;
 import gov.ismonnet.client.collider.CircleCollider;
 import gov.ismonnet.client.collider.Collider;
 
 import javax.inject.Inject;
 
 @AutoFactory
-public class DiskEntity extends BaseEntity {
+public class PuckEntity extends BaseEntity {
 
     private static final float MOTION_STEP = 0.1f;
 
-    private final Rink rink;
+    private final Table table;
 
     private final float radius;
 
@@ -22,11 +22,11 @@ public class DiskEntity extends BaseEntity {
     private float prevPosX;
     private float prevPosY;
 
-    @Inject DiskEntity(@Provided Rink rink,
+    @Inject PuckEntity(@Provided Table table,
                        float startX, float startY,
                        float radius,
                        float motionX, float motionY) {
-        this.rink = rink;
+        this.table = table;
 
         this.collider = new CircleCollider(this::getPosX, this::getPosY, () -> radius);
         this.prevPosXCollider = new CircleCollider(() -> prevPosX, this::getPosY, () -> radius);
@@ -52,7 +52,7 @@ public class DiskEntity extends BaseEntity {
         boolean collidesHorizontally = false;
         boolean collidesVertically = false;
 
-        for(WallEntity wall : rink.getWalls()) {
+        for(WallEntity wall : table.getWalls()) {
             if(!collidesHorizontally && !prevPosXCollider.collidesWith(wall) && collider.collidesWith(wall))
                 collidesHorizontally = true;
             if(!collidesVertically && !prevPosYCollider.collidesWith(wall) && collider.collidesWith(wall))

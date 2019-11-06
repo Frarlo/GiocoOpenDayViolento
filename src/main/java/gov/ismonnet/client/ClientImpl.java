@@ -1,10 +1,10 @@
 package gov.ismonnet.client;
 
-import gov.ismonnet.client.entity.DiskEntityFactory;
 import gov.ismonnet.client.entity.Entity;
+import gov.ismonnet.client.entity.PuckEntityFactory;
 import gov.ismonnet.client.renderer.RenderService;
 import gov.ismonnet.client.renderer.RenderServiceFactory;
-import gov.ismonnet.client.rink.Rink;
+import gov.ismonnet.client.table.Table;
 import gov.ismonnet.client.util.Timer;
 
 import javax.inject.Inject;
@@ -16,29 +16,29 @@ public class ClientImpl implements Client {
     private final RenderServiceFactory renderServiceFactory;
     private final Timer ticksTimer;
 
-    private final Rink rink;
-    private final DiskEntityFactory diskFactory;
+    private final Table table;
+    private final PuckEntityFactory puckFactory;
 
     private RenderService renderService;
 
     @Inject ClientImpl(RenderServiceFactory renderServiceFactory,
-                       Rink rink,
-                       DiskEntityFactory diskFactory) {
+                       Table table,
+                       PuckEntityFactory puckFactory) {
 
         this.renderServiceFactory = renderServiceFactory;
         this.ticksTimer = new Timer();
 
-        this.rink = rink;
-        this.diskFactory = diskFactory;
+        this.table = table;
+        this.puckFactory = puckFactory;
     }
 
     @Override
     public void start() {
         renderService = renderServiceFactory.create(this::handleTicks);
 
-        rink.spawnEntity(diskFactory.create(
-                rink.getWidth() / 2F,
-                rink.getHeight() / 2F,
+        table.spawnEntity(puckFactory.create(
+                table.getWidth() / 2F,
+                table.getHeight() / 2F,
                 25,
                 50, 50));
     }
@@ -59,6 +59,6 @@ public class ClientImpl implements Client {
     }
 
     private void onTick() {
-        rink.getEntities().forEach(Entity::tick);
+        table.getEntities().forEach(Entity::tick);
     }
 }

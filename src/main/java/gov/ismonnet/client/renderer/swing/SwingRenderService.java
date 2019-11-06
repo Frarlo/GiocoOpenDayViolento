@@ -8,7 +8,7 @@ import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderService;
 import gov.ismonnet.client.renderer.RenderServiceFactory;
 import gov.ismonnet.client.renderer.Renderer;
-import gov.ismonnet.client.rink.Rink;
+import gov.ismonnet.client.table.Table;
 import gov.ismonnet.client.util.ScaledResolution;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ public class SwingRenderService extends JPanel implements RenderService {
     private final JFrame frame;
     private ScaledResolution scaledResolution;
 
-    private final Rink rink;
+    private final Table table;
 
     private final Map<Class, Renderer> renderers;
     private final Renderer<RenderContext, Object> fallbackRenderer;
@@ -40,12 +40,12 @@ public class SwingRenderService extends JPanel implements RenderService {
 
     @SuppressWarnings("unchecked")
     @Inject SwingRenderService(@Provided Client client,
-                               @Provided Rink rink,
+                               @Provided Table table,
                                @Provided Map<Class<?>, Renderer> renderers,
                                @Provided Renderer<RenderContext, Object> fallbackRenderer,
                                @Provided Renderer axisAlignedBBsRenderer,
                                Runnable ticksHandler) {
-        this.rink = rink;
+        this.table = table;
 
         this.renderers = Collections.unmodifiableMap(new HashMap<>(renderers));
         this.fallbackRenderer = fallbackRenderer;
@@ -64,12 +64,12 @@ public class SwingRenderService extends JPanel implements RenderService {
             }
         };
         this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.frame.setSize((int) Math.ceil(rink.getWidth()), (int) Math.ceil(rink.getHeight()));
+        this.frame.setSize((int) Math.ceil(table.getWidth()), (int) Math.ceil(table.getHeight()));
         this.frame.setResizable(true);
         this.frame.setLocationRelativeTo(null);
         this.frame.setContentPane(this);
 
-        this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), rink.getWidth(), rink.getHeight());
+        this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         addComponentListener(new ResizeHandler());
 
         this.frame.setVisible(true);
@@ -91,8 +91,8 @@ public class SwingRenderService extends JPanel implements RenderService {
 
         setupScaling(ctx, true);
 
-        renderers.getOrDefault(Rink.class, fallbackRenderer).render(ctx, rink);
-        rink.getEntities().forEach(entity -> {
+        renderers.getOrDefault(Table.class, fallbackRenderer).render(ctx, table);
+        table.getEntities().forEach(entity -> {
             renderers.getOrDefault(entity.getClass(), fallbackRenderer).render(ctx, entity);
             axisAlignedBBsRenderer.render(ctx, entity);
         });
@@ -122,7 +122,7 @@ public class SwingRenderService extends JPanel implements RenderService {
 
     private class ResizeHandler extends ComponentAdapter {
         public void componentResized(ComponentEvent e) {
-            scaledResolution = new ScaledResolution(getWidth(), getHeight(), rink.getWidth(), rink.getHeight());
+            scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         }
     }
 }
