@@ -9,8 +9,8 @@ import java.util.*;
 
 class TableImpl implements Table, LifeCycle {
 
-    private static final float WALL_THICKNESS = 10;
-    private static final float GOAL_WALL_RATIO = 1F / 6F;
+    private final float wallThickness;
+    private final float goalHeight;
 
     private float width;
     private float height;
@@ -33,8 +33,13 @@ class TableImpl implements Table, LifeCycle {
                       PuckEntityFactory puckFactory,
                       LifeCycleService lifeCycleService) {
 
-        this.width = 750;
-        this.height = 500;
+        this.wallThickness = 25;
+        // Image ratio is 243/282
+        this.width = 729 + wallThickness;
+        this.height = 846 + 2 * wallThickness;
+        // Goal/height is 128/307
+        this.goalHeight = 384;
+
         this.side = side;
 
         this.wallFactory = wallFactory;
@@ -50,22 +55,25 @@ class TableImpl implements Table, LifeCycle {
     public void start() {
         goal = goalFactory.create(
                 0,
-                (height - height * GOAL_WALL_RATIO) / 2F,
-                WALL_THICKNESS + 2,
-                height * GOAL_WALL_RATIO);
+                (height - goalHeight) / 2F,
+                wallThickness,
+                goalHeight);
         walls = new WallEntity[] {
                 // Top wall
-                wallFactory.create(0, 0, width, WALL_THICKNESS),
+                wallFactory.create(0, 0, width, wallThickness),
                 // Bottom wall
-                wallFactory.create(0, height - WALL_THICKNESS, width, WALL_THICKNESS),
+                wallFactory.create(0, height - wallThickness, width, wallThickness),
                 // Left wall
-                wallFactory.create(0, 0, WALL_THICKNESS, goal.getPosY()),
+                wallFactory.create(0, 0, wallThickness, goal.getPosY()),
                 wallFactory.create(0,
                         goal.getPosY() + getGoal().getHeight(),
-                        WALL_THICKNESS,
+                        wallThickness,
                         height - goal.getPosY() - goal.getHeight()),
                 // Right wall
-                wallFactory.create(width - WALL_THICKNESS, 0, WALL_THICKNESS, height)
+                wallFactory.create(width - wallThickness, 0, wallThickness, height),
+                // Temp left wall
+                // TODO: temp
+//                wallFactory.create(0, 0, wallThickness, height)
         };
 
         spawnEntity(goal);
@@ -76,8 +84,8 @@ class TableImpl implements Table, LifeCycle {
         puck = puckFactory.create(
                 getWidth() / 2F,
                 getHeight() / 2F,
-                getHeight() / 24F,
-                50, 0);
+                50,
+                50, 50);
         spawnEntity(puck);
     }
 
@@ -93,6 +101,16 @@ class TableImpl implements Table, LifeCycle {
     @Override
     public float getHeight() {
         return height;
+    }
+
+    @Override
+    public float getWallThickness() {
+        return wallThickness;
+    }
+
+    @Override
+    public float getGoalHeight() {
+        return goalHeight;
     }
 
     @Override

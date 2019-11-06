@@ -215,6 +215,39 @@ class SwingRenderContext extends Graphics2D implements RenderContext {
     // TODO: for drawing floating point images, translate and draw
     // https://gamedev.stackexchange.com/a/45048
 
+    public boolean drawImage(Image img, float x, float y, ImageObserver observer) {
+        translate(x, y);
+        try {
+            return drawImage(img, 0, 0, observer);
+        } finally {
+            translate(-x, -y);
+        }
+    }
+
+    public boolean drawImage(Image img, float x, float y, int width, int height, ImageObserver observer) {
+        translate(x, y);
+        try {
+            return drawImage(img, 0, 0, width, height, observer);
+        } finally {
+            translate(-x, -y);
+        }
+    }
+
+    public boolean drawImage(Image img, float x, float y, float width, float height, ImageObserver observer) {
+        final double wScale = width / (int) width;
+        final double hScale = height / (int) height;
+
+        translate(x, y);
+        scale(wScale, hScale);
+        try {
+            return drawImage(img, 0, 0, (int) width, (int) height, observer);
+        } finally {
+            scale(1 / wScale, 1 / hScale);
+            translate(-x, -y);
+        }
+    }
+
+
     // Graphics2D delegate
 
     @Override

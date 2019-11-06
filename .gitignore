@@ -2,3 +2,6 @@
 /.gradle/
 /build/
 /build/classes/java/main/
+
+# Stolen assets
+/src/main/resources/ripped/

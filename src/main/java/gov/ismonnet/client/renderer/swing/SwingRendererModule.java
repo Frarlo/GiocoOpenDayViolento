@@ -5,16 +5,17 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
-import gov.ismonnet.client.entity.GoalEntity;
 import gov.ismonnet.client.entity.PuckEntity;
-import gov.ismonnet.client.entity.WallEntity;
 import gov.ismonnet.client.renderer.EmptyRenderer;
 import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderService;
 import gov.ismonnet.client.renderer.Renderer;
+import gov.ismonnet.client.resource.ResourceService;
 import gov.ismonnet.client.table.Table;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
+import java.awt.image.BufferedImage;
 
 @Module
 public abstract class SwingRendererModule {
@@ -33,15 +34,53 @@ public abstract class SwingRendererModule {
         return DRAW_COLLISION_BOXES ? renderer : emptyRenderer;
     }
 
+    @Binds @IntoMap @ClassKey(PuckEntity.class)
+    abstract Renderer puckRenderer(PuckRenderer puckRenderer);
+
+    @Provides @Named("puck_texture")
+    static BufferedImage puckTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/puck.png");
+    }
+
     @Binds @IntoMap @ClassKey(Table.class)
     abstract Renderer tableRenderer(TableRenderer tableRenderer);
 
-    @Binds @IntoMap @ClassKey(WallEntity.class)
-    abstract Renderer wallRenderer(WallRenderer wallRenderer);
+    @Provides @Named("table_texture")
+    static BufferedImage tableTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/table.png");
+    }
 
-    @Binds @IntoMap @ClassKey(GoalEntity.class)
-    abstract Renderer goalRenderer(GoalRenderer wallRenderer);
+    // Side walls
 
-    @Binds @IntoMap @ClassKey(PuckEntity.class)
-    abstract Renderer puckRenderer(PuckRenderer puckRenderer);
+    @Provides @Named("side_wall_texture")
+    static BufferedImage sideWallTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/side_walls/wall.png");
+    }
+
+    @Provides @Named("side_corner_texture")
+    static BufferedImage sideCornerTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/side_walls/corner.png");
+    }
+
+    // Goal wall
+
+    @Provides @Named("goal_external_corner_texture")
+    static BufferedImage goalExternalCornerTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/goal_wall/external_corner.png");
+    }
+
+    @Provides @Named("goal_wall_texture")
+    static BufferedImage goalWallTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/goal_wall/wall.png");
+    }
+
+    @Provides @Named("goal_internal_corner_texture")
+    static BufferedImage goalInternalCornerTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/goal_wall/internal_corner.png");
+    }
+
+    @Provides @Named("goal_goal_texture")
+    static BufferedImage goalTexture(ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/goal_wall/goal.png");
+    }
 }

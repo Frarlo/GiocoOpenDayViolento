@@ -13,6 +13,10 @@ public interface Table {
 
     float getHeight();
 
+    float getWallThickness();
+
+    float getGoalHeight();
+
     WallEntity[] getWalls();
 
     GoalEntity getGoal();
