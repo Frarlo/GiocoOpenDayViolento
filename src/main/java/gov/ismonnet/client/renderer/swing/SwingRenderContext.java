@@ -212,6 +212,9 @@ class SwingRenderContext extends Graphics2D implements RenderContext {
         draw(shape);
     }
 
+    // TODO: for drawing floating point images, translate and draw
+    // https://gamedev.stackexchange.com/a/45048
+
     // Graphics2D delegate
 
     @Override
