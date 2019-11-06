@@ -11,6 +11,7 @@ import gov.ismonnet.client.renderer.RenderContext;
 import gov.ismonnet.client.renderer.RenderService;
 import gov.ismonnet.client.renderer.Renderer;
 import gov.ismonnet.client.resource.ResourceService;
+import gov.ismonnet.client.resource.Ripped;
 import gov.ismonnet.client.table.Table;
 
 import javax.inject.Named;
@@ -38,7 +39,7 @@ public abstract class SwingRendererModule {
     abstract Renderer puckRenderer(PuckRenderer puckRenderer);
 
     @Provides @Named("puck_texture")
-    static BufferedImage puckTexture(ResourceService resourceService) {
+    static BufferedImage puckTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/puck.png");
     }
 
@@ -46,41 +47,41 @@ public abstract class SwingRendererModule {
     abstract Renderer tableRenderer(TableRenderer tableRenderer);
 
     @Provides @Named("table_texture")
-    static BufferedImage tableTexture(ResourceService resourceService) {
+    static BufferedImage tableTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/table.png");
     }
 
     // Side walls
 
     @Provides @Named("side_wall_texture")
-    static BufferedImage sideWallTexture(ResourceService resourceService) {
+    static BufferedImage sideWallTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/side_walls/wall.png");
     }
 
     @Provides @Named("side_corner_texture")
-    static BufferedImage sideCornerTexture(ResourceService resourceService) {
+    static BufferedImage sideCornerTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/side_walls/corner.png");
     }
 
     // Goal wall
 
     @Provides @Named("goal_external_corner_texture")
-    static BufferedImage goalExternalCornerTexture(ResourceService resourceService) {
+    static BufferedImage goalExternalCornerTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/goal_wall/external_corner.png");
     }
 
     @Provides @Named("goal_wall_texture")
-    static BufferedImage goalWallTexture(ResourceService resourceService) {
+    static BufferedImage goalWallTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/goal_wall/wall.png");
     }
 
     @Provides @Named("goal_internal_corner_texture")
-    static BufferedImage goalInternalCornerTexture(ResourceService resourceService) {
+    static BufferedImage goalInternalCornerTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/goal_wall/internal_corner.png");
     }
 
     @Provides @Named("goal_goal_texture")
-    static BufferedImage goalTexture(ResourceService resourceService) {
+    static BufferedImage goalTexture(@Ripped ResourceService resourceService) {
         return resourceService.getImageResources("ripped/goal_wall/goal.png");
     }
 }
