@@ -15,7 +15,6 @@ public abstract class ResourceModule {
 
     @Provides @GameSession @Ripped
     static ResourceService rippedResourceService(ResourceService inJarResourceService, FileResourceService fileResourceService) {
-        System.out.println(new File("ripped").getAbsoluteFile());
         if(new File("ripped").exists())
             return fileResourceService;
         return inJarResourceService;
