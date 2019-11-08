@@ -1,4 +1,4 @@
-package gov.ismonnet.client;
+package gov.ismonnet.server;
 
 import dagger.Binds;
 import dagger.Module;
@@ -14,21 +14,21 @@ import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.netty.SharedNetModule;
 import gov.ismonnet.netty.core.NetService;
 import gov.ismonnet.netty.core.PacketParser;
-import gov.ismonnet.netty.packets.KickPacket;
-import gov.ismonnet.netty.packets.PongPacket;
+import gov.ismonnet.netty.packets.DisconnectPacket;
+import gov.ismonnet.netty.packets.PingPacket;
 
 import javax.inject.Singleton;
 import java.util.Set;
 
 @Module(includes = SharedNetModule.class, subcomponents = GameComponent.class)
-abstract class ClientModule {
+public abstract class ServerModule {
 
     @Provides @Singleton
-    static GameComponent game(GameComponent.Builder gameBuilder, @ClientPrivate RenderService.Side side) {
+    static GameComponent gameComponent(GameComponent.Builder gameBuilder, @ServerPrivate RenderService.Side side) {
         return gameBuilder.injectSide(side).build();
     }
 
-    @Provides @ElementsIntoSet @ClientPrivate
+    @Provides @ElementsIntoSet @ServerPrivate
     static Set<EagerInit> gameEagerInit(GameComponent gameComponent) {
         return gameComponent.eagerInit();
     }
@@ -37,15 +37,15 @@ abstract class ClientModule {
     abstract LifeCycleService lifeCycleService(LifeCycleManager lifeCycleManager);
 
     @Binds @Singleton
-    abstract NetService netService(ClientNetService clientNetService);
+    abstract NetService netService(ServerNetService serverNetService);
 
-    @Provides @IntoMap @ClassKey(PongPacket.class)
+    @Provides @IntoMap @ClassKey(PingPacket.class)
     static PacketParser pingParser() {
-        return PongPacket.PARSER;
+        return PingPacket.PARSER;
     }
 
-    @Provides @IntoMap @ClassKey(KickPacket.class)
+    @Provides @IntoMap @ClassKey(DisconnectPacket.class)
     static PacketParser disconnectParser() {
-        return KickPacket.PARSER;
+        return DisconnectPacket.PARSER;
     }
 }

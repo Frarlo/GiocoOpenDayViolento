@@ -1,9 +1,8 @@
 package gov.ismonnet.netty.packets;
 
 import gov.ismonnet.netty.ByteBufHelper;
-import gov.ismonnet.netty.core.BasePacket;
-import gov.ismonnet.netty.core.SPacket;
-import gov.ismonnet.netty.core.SPacketParser;
+import gov.ismonnet.netty.core.Packet;
+import gov.ismonnet.netty.core.PacketParser;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -12,7 +11,7 @@ import io.netty.buffer.ByteBuf;
  *
  * @author Ferlo
  */
-public class KickPacket extends BasePacket implements SPacket {
+public class KickPacket implements Packet {
 
     /**
      * Kick reason (or an empty string if not specified)
@@ -59,7 +58,7 @@ public class KickPacket extends BasePacket implements SPacket {
     }
 
     @Override
-    public void writePacket(ByteBuf buf) throws Exception {
+    public void writePacket(ByteBuf buf) {
         ByteBufHelper.writeString(buf, reason);
     }
 
@@ -73,5 +72,5 @@ public class KickPacket extends BasePacket implements SPacket {
     /**
      * Constructs a new {@link KickPacket} from the given data buffer
      */
-    public static final SPacketParser PARSER = (msg) -> new KickPacket(ByteBufHelper.readString(msg));
+    public static final PacketParser PARSER = (msg) -> new KickPacket(ByteBufHelper.readString(msg));
 }

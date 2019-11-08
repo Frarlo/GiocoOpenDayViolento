@@ -11,9 +11,11 @@ import java.util.stream.IntStream;
 public class LifeCycleManager implements LifeCycleService {
 
     private final List<LifeCycle> registered;
-    private final AtomicBoolean started;
 
-    @Inject LifeCycleManager() {
+    private final AtomicBoolean started;
+    private int startedServices;
+
+    @Inject public LifeCycleManager() {
         registered = new CopyOnWriteArrayList<>();
         started = new AtomicBoolean(false);
     }
@@ -26,6 +28,7 @@ public class LifeCycleManager implements LifeCycleService {
         System.out.println("Starting lifecycle");
         registered.forEach(lifeCycle -> {
             System.out.println("Starting lifecycle of " + lifeCycle.getClass().getSimpleName());
+            startedServices++;
             SneakyThrow.runUnchecked(lifeCycle::start);
         });
     }
@@ -36,8 +39,8 @@ public class LifeCycleManager implements LifeCycleService {
             throw new AssertionError("LifeCycle hasn't been started");
 
         System.out.println("Stopping lifecycle");
-        IntStream.range(0, registered.size())
-                .map(i -> registered.size() - 1 - i)
+        IntStream.range(0, startedServices)
+                .map(i -> startedServices - 1 - i)
                 .forEach(i -> {
                     final LifeCycle lifeCycle = registered.get(i);
                     try {

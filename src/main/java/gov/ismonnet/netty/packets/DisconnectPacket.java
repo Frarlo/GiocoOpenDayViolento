@@ -1,8 +1,7 @@
 package gov.ismonnet.netty.packets;
 
-import gov.ismonnet.netty.core.BasePacket;
-import gov.ismonnet.netty.core.CPacket;
-import gov.ismonnet.netty.core.CPacketParser;
+import gov.ismonnet.netty.core.Packet;
+import gov.ismonnet.netty.core.PacketParser;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -10,14 +9,14 @@ import io.netty.buffer.ByteBuf;
  *
  * @author Ferlo
  */
-public class DisconnectPacket extends BasePacket implements CPacket {
+public class DisconnectPacket implements Packet {
 
     @Override
-    public void writePacket(ByteBuf buf) throws Exception {
+    public void writePacket(ByteBuf buf) {
     }
 
     /**
      * Constructs a new {@link DisconnectPacket} from the given data buffer
      */
-    public static final CPacketParser PARSER = (msg) -> new DisconnectPacket();
+    public static final PacketParser PARSER = (msg) -> new DisconnectPacket();
 }

@@ -66,7 +66,7 @@ public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         final PacketParser packetParser = idToParser.apply(packetId);
 
         if(packetParser == null)
-            throw new NetworkException("There is no parser for the given ID (" + packetId+ ')');
+            throw new NetworkException("There is no parser for the given ID (" + packetId + ')');
 
         try {
             return packetParser.parse(frame);

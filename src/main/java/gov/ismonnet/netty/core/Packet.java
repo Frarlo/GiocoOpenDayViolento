@@ -16,11 +16,4 @@ public interface Packet {
      * @throws Exception if anything goes wrong
      */
     void writePacket(ByteBuf buf) throws Exception;
-
-    /**
-     * Returns the context of this packet
-     *
-     * @return packet context
-     */
-    PacketContext getContext();
 }
