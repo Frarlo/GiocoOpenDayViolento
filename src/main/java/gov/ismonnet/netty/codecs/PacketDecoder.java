@@ -4,6 +4,7 @@ import gov.ismonnet.netty.core.Packet;
 import gov.ismonnet.netty.core.PacketParser;
 import gov.ismonnet.netty.exceptions.NetworkException;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +18,7 @@ import java.util.function.Function;
  *
  * @author Ferlo
  */
+@ChannelHandler.Sharable
 public class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     // Constants

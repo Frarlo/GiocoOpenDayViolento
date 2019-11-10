@@ -3,6 +3,7 @@ package gov.ismonnet.netty.codecs;
 import gov.ismonnet.netty.core.Packet;
 import gov.ismonnet.netty.exceptions.NetworkException;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import java.util.function.Function;
  *
  * @author Ferlo
  */
+@ChannelHandler.Sharable
 public class PacketEncoder extends MessageToByteEncoder<Packet> {
 
     // Constants

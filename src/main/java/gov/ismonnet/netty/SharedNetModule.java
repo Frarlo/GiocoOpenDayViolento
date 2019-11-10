@@ -11,7 +11,6 @@ import gov.ismonnet.netty.packets.PingPacket;
 import gov.ismonnet.netty.packets.PongPacket;
 
 import javax.inject.Named;
-import javax.inject.Singleton;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
 @Module
 public abstract class SharedNetModule {
 
-    @Binds @Singleton
+    @Binds @NetSession
     abstract PacketIdService packetIdService(PacketIdServiceImpl impl);
 
     @Provides @Named("keep_alive_timeout")
@@ -27,7 +26,7 @@ public abstract class SharedNetModule {
         return 10 * 1000;
     }
 
-    @Provides @Singleton
+    @Provides @NetSession
     static Map<Class<? extends Packet>, Byte> packetIds() {
         final Map<Class<? extends Packet>, Byte> temp = new HashMap<>();
 

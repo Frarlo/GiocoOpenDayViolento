@@ -15,9 +15,15 @@ public class LifeCycleManager implements LifeCycleService {
     private final AtomicBoolean started;
     private int startedServices;
 
+    private final List<Runnable> beforeStopListener;
+    private final List<Runnable> afterStopListener;
+
     @Inject public LifeCycleManager() {
         registered = new CopyOnWriteArrayList<>();
         started = new AtomicBoolean(false);
+
+        beforeStopListener = new CopyOnWriteArrayList<>();
+        afterStopListener = new CopyOnWriteArrayList<>();
     }
 
     @Override
@@ -38,6 +44,8 @@ public class LifeCycleManager implements LifeCycleService {
         if(!started.get())
             throw new AssertionError("LifeCycle hasn't been started");
 
+        beforeStopListener.forEach(Runnable::run);
+
         System.out.println("Stopping lifecycle");
         IntStream.range(0, startedServices)
                 .map(i -> startedServices - 1 - i)
@@ -51,6 +59,8 @@ public class LifeCycleManager implements LifeCycleService {
                         t.printStackTrace(System.err);
                     }
                 });
+
+        afterStopListener.forEach(Runnable::run);
     }
 
     @Override
@@ -61,5 +71,15 @@ public class LifeCycleManager implements LifeCycleService {
     @Override
     public void unregister(LifeCycle lifeCycle) {
         registered.remove(lifeCycle);
+    }
+
+    @Override
+    public void beforeStop(Runnable runnable) {
+        beforeStopListener.add(runnable);
+    }
+
+    @Override
+    public void afterStop(Runnable runnable) {
+        afterStopListener.add(runnable);
     }
 }

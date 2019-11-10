@@ -9,6 +9,7 @@ import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.util.ScaledResolution;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
+import gov.ismonnet.util.SneakyThrow;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -60,7 +61,7 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
             @Override
             public void dispose() {
                 if(stopClient)
-                    lifeCycleService.stop();
+                    SneakyThrow.runUnchecked(lifeCycleService::stop);
                 super.dispose();
             }
         };

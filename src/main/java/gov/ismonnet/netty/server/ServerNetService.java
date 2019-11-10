@@ -1,4 +1,4 @@
-package gov.ismonnet.server;
+package gov.ismonnet.netty.server;
 
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
@@ -9,6 +9,9 @@ import gov.ismonnet.netty.codecs.PacketEncoder;
 import gov.ismonnet.netty.core.NetService;
 import gov.ismonnet.netty.core.Packet;
 import gov.ismonnet.netty.core.PacketIdService;
+import gov.ismonnet.netty.exceptions.DelimiterDecoderException;
+import gov.ismonnet.netty.exceptions.NetworkException;
+import gov.ismonnet.netty.packets.DisconnectPacket;
 import gov.ismonnet.netty.packets.KickPacket;
 import gov.ismonnet.netty.packets.PingPacket;
 import gov.ismonnet.netty.packets.PongPacket;
@@ -17,7 +20,10 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.ReadTimeoutException;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -27,7 +33,10 @@ import java.util.concurrent.TimeUnit;
 
 public class ServerNetService implements NetService, LifeCycle {
 
+    private static final Logger LOGGER = LogManager.getLogger(ServerNetService.class);
     private final static int SHUTDOWN_TIMEOUT = 5000;
+
+    private final LifeCycleService lifeCycleService;
 
     private final ServerBootstrap bootstrap;
     private final int port;
@@ -40,30 +49,36 @@ public class ServerNetService implements NetService, LifeCycle {
     private CompletableFuture<Channel> clientFuture;
     private Channel clientChannel;
 
+    private volatile boolean isStopped = false;
+
     @Inject ServerNetService(@Named("socket_port") int port,
                              @Named("keep_alive_timeout") int keepAliveTimeout,
                              PacketIdService packetIdService,
                              LifeCycleService lifeCycleService) {
         this.port = port;
+        this.lifeCycleService = lifeCycleService;
+
         this.bootstrap = new ServerBootstrap()
                 .channel(NioServerSocketChannel.class)
                 .childOption(ChannelOption.TCP_NODELAY, true)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
+                    protected void initChannel(SocketChannel ch) {
                         // Decoders
 
                         ch.pipeline().addLast("timeout", new ReadTimeoutHandler(keepAliveTimeout, TimeUnit.MILLISECONDS));
                         ch.pipeline().addLast("framer", new ByteStuffingDecoder());
                         ch.pipeline().addLast("decoder", new PacketDecoder(packetIdService::getParserById));
 
-                        ch.pipeline().addLast("keep_alive_handler", new KeepAliveHandler());
-                        ch.pipeline().addLast("packet_handler", new PacketHandler());
-
                         // Encoders
 
                         ch.pipeline().addLast("frame_encoder", new ByteStuffingEncoder());
                         ch.pipeline().addLast("encoder", new PacketEncoder(packetIdService::getPacketId));
+
+                        // Handlers
+
+                        ch.pipeline().addLast("keep_alive_handler", new KeepAliveHandler());
+                        ch.pipeline().addLast("packet_handler", new PacketHandler());
                     }
                 })
                 .localAddress(port);
@@ -87,15 +102,18 @@ public class ServerNetService implements NetService, LifeCycle {
 
     @Override
     public void stop() throws Exception {
+        isStopped = true;
         bossGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
         workerGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public Future<Void> sendPacket(Packet packet) {
+        LOGGER.trace("Sending packet {}", packet);
         return clientChannel.writeAndFlush(packet);
     }
 
+    @ChannelHandler.Sharable
     private final class KeepAliveHandler extends SimpleChannelInboundHandler<Packet> {
 
         @Override
@@ -112,20 +130,20 @@ public class ServerNetService implements NetService, LifeCycle {
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-//            if(cause instanceof DelimiterDecoderException) {
-//                LOGGER.error("Exception while framing packets (Sender: {})", ctx, cause);
-//
-//            } else if(cause instanceof NetworkException) {
-//                LOGGER.error("Exception while decoding packets (Sender: {})", ctx, cause);
-//
-//            } else  {
-//                if(cause instanceof ReadTimeoutException)
-//                    LOGGER.error("Connection timed out (Ctx: {})", ctx, cause);
-//                else
-//                    LOGGER.error("Uncaught exception inside the Netty pipeline (Ctx: {}) {}", ctx, cause);
-//                ctx.close();
-//            }
+        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+            if(cause instanceof DelimiterDecoderException) {
+                LOGGER.error("Exception while framing packets (Sender: {})", ctx, cause);
+
+            } else if(cause instanceof NetworkException) {
+                LOGGER.error("Exception while decoding packets (Sender: {})", ctx, cause);
+
+            } else  {
+                if(cause instanceof ReadTimeoutException)
+                    LOGGER.error("Connection timed out (Ctx: {})", ctx, cause);
+                else
+                    LOGGER.error("Uncaught exception inside the Netty pipeline (Ctx: {}) {}", ctx, cause);
+                ctx.close();
+            }
         }
 
         @Override
@@ -142,21 +160,25 @@ public class ServerNetService implements NetService, LifeCycle {
 
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-//            LOGGER.trace("Channel inactive");
-//            super.channelInactive(ctx);
+            LOGGER.trace("Channel inactive");
+            super.channelInactive(ctx);
+
+            if(!isStopped)
+                lifeCycleService.stop();
         }
     }
 
+    @ChannelHandler.Sharable
     private final class PacketHandler extends SimpleChannelInboundHandler<Packet> {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, Packet msg) {
 
-//            if(msg instanceof DisconnectPacket)
-//                closeChannel();
+            if(msg instanceof DisconnectPacket)
+                ctx.close();
 
             // Todo: handle the packets somehow
-//            LOGGER.info("Handle packet {}", msg);
+            LOGGER.trace("Handle packet {}", msg);
         }
 
         @Override
