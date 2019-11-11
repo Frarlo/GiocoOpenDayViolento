@@ -18,14 +18,14 @@ import java.util.Objects;
  * @param <T> event type that this listener can handle
  * @author Ferlo
  */
-public class BaseListener<T> implements PriorityListener<T>, FilterableListener<T> {
+public class SyncListener<T> implements PriorityListener<T>, FilterableListener<T> {
 
     // Constants
 
     /**
      * Logger instance
      */
-    private static final Logger LOGGER = LogManager.getLogger(BaseListener.class);
+    private static final Logger LOGGER = LogManager.getLogger(SyncListener.class);
 
     // Attributes
 
@@ -53,7 +53,7 @@ public class BaseListener<T> implements PriorityListener<T>, FilterableListener<
      * @param filters filters used to test events before notifying the body
      */
     @SafeVarargs
-    public BaseListener(final ListenerBody<T> body, Filter<T>... filters) {
+    public SyncListener(final ListenerBody<T> body, Filter<T>... filters) {
         this(body, NORMAL_PRIORITY, filters);
     }
 
@@ -66,7 +66,7 @@ public class BaseListener<T> implements PriorityListener<T>, FilterableListener<
      */
     @SafeVarargs
     @SuppressWarnings("unchecked")
-    public BaseListener(final ListenerBody<T> body, final int priority, Filter<T>... filters) {
+    public SyncListener(final ListenerBody<T> body, final int priority, Filter<T>... filters) {
         this.body = body;
         this.eventTarget = (Class<T>) LambdaUtils.getLambdaMethod(body).getParameterTypes()[0];
 

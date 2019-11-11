@@ -11,11 +11,11 @@ public class WallEntity extends BaseEntity {
     private final float width;
     private final float height;
 
-    @Inject WallEntity(float startX, float startY, float width, float height) {
-        this.collider = new QuadCollider(startX, startY, width, height);
+    @Inject WallEntity(float posX, float posY, float width, float height) {
+        this.collider = new QuadCollider(posX, posY, width, height);
 
-        this.posX = startX;
-        this.posY = startY;
+        this.posX = posX;
+        this.posY = posY;
         this.width = width;
         this.height = height;
     }

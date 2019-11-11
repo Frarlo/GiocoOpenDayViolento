@@ -1,5 +1,8 @@
 package gov.ismonnet.netty.client;
 
+import gov.ismonnet.event.EventListener;
+import gov.ismonnet.event.bus.BaseBus;
+import gov.ismonnet.event.bus.WeakBus;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.netty.codecs.ByteStuffingDecoder;
@@ -39,6 +42,8 @@ public class ClientNetService implements NetService, LifeCycle {
     private final Bootstrap bootstrap;
     private final InetSocketAddress address;
 
+    private final BaseBus<Packet> delegateBus;
+
     private final int keepAliveTimeout;
 
     private volatile boolean isConnected;
@@ -57,6 +62,7 @@ public class ClientNetService implements NetService, LifeCycle {
         this.keepAliveTimeout = keepAliveTimeout;
         this.lifeCycleService = lifeCycleService;
 
+        this.delegateBus = new WeakBus<>();
         this.bootstrap = new Bootstrap()
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<Channel>() {
@@ -160,8 +166,45 @@ public class ClientNetService implements NetService, LifeCycle {
             if(msg instanceof KickPacket)
                 ctx.close();
 
-            // Todo: handle the packets somehow
             LOGGER.trace("Handle packet {}", msg);
+            post(msg);
         }
+    }
+
+    // Delegate event bus
+
+    @Override
+    public void register(EventListener<? extends Packet> listener) {
+        delegateBus.register(listener);
+    }
+
+    @Override
+    public void registerObj(Object obj) {
+        delegateBus.registerObj(obj);
+    }
+
+    @Override
+    public void registerObj(Object obj, Class<? extends Packet>... events) {
+        delegateBus.registerObj(obj, events);
+    }
+
+    @Override
+    public void unregister(EventListener<? extends Packet> listener) {
+        delegateBus.unregister(listener);
+    }
+
+    @Override
+    public void unregisterObj(Object obj) {
+        delegateBus.unregisterObj(obj);
+    }
+
+    @Override
+    public void unregisterObj(Object obj, Class<? extends Packet>... events) {
+        delegateBus.unregisterObj(obj, events);
+    }
+
+    @Override
+    public Packet post(Packet event) {
+        return delegateBus.post(event);
     }
 }

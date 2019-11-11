@@ -3,12 +3,12 @@ package gov.ismonnet.netty;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.ClassKey;
+import dagger.multibindings.IntoMap;
 import gov.ismonnet.netty.core.Packet;
 import gov.ismonnet.netty.core.PacketIdService;
-import gov.ismonnet.netty.packets.DisconnectPacket;
-import gov.ismonnet.netty.packets.KickPacket;
-import gov.ismonnet.netty.packets.PingPacket;
-import gov.ismonnet.netty.packets.PongPacket;
+import gov.ismonnet.netty.core.PacketParser;
+import gov.ismonnet.netty.packets.*;
 
 import javax.inject.Named;
 import java.util.Collections;
@@ -23,7 +23,7 @@ public abstract class SharedNetModule {
 
     @Provides @Named("keep_alive_timeout")
     static int keepAliveTimeout() {
-        return 10 * 1000;
+        return Integer.MAX_VALUE;
     }
 
     @Provides @NetSession
@@ -40,6 +40,13 @@ public abstract class SharedNetModule {
         temp.put(DisconnectPacket.class, (byte) 1);
         temp.put(KickPacket.class, (byte) 1);
 
+        temp.put(PuckPositionPacket.class, (byte) 2);
+
         return Collections.unmodifiableMap(temp);
+    }
+
+    @Provides @IntoMap @ClassKey(PuckPositionPacket.class)
+    static PacketParser puckPositionParser() {
+        return PuckPositionPacket.PARSER;
     }
 }

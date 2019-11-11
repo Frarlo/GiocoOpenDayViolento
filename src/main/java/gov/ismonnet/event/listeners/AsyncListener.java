@@ -15,7 +15,7 @@ import java.util.concurrent.ForkJoinPool;
  * @param <T> event type that this listener can handle
  * @author Ferlo
  */
-public class AsyncListener<T> extends BaseListener<T> {
+public class AsyncListener<T> extends SyncListener<T> {
 
     // Constants
 
@@ -25,7 +25,7 @@ public class AsyncListener<T> extends BaseListener<T> {
     private static final Executor DEFAULT_EXECUTOR = ForkJoinPool.getCommonPoolParallelism() > 1 ?
             ForkJoinPool.commonPool() :
             Executors.newFixedThreadPool(32, new ThreadFactoryBuilder()
-                    .setNameFormat(i -> "Pdc_AsyncListener-" + i)
+                    .setNameFormat(i -> "AsyncListener-" + i)
                     .setDaemon(true)
                     .build());
 
@@ -39,7 +39,7 @@ public class AsyncListener<T> extends BaseListener<T> {
     /**
      * Constructs an async listener using {@link #DEFAULT_EXECUTOR}
      *
-     * @see BaseListener#BaseListener(ListenerBody, Filter[])
+     * @see SyncListener#SyncListener(ListenerBody, Filter[])
      */
     @SafeVarargs
     public AsyncListener(ListenerBody<T> body, Filter<T>... filters) {
@@ -49,7 +49,7 @@ public class AsyncListener<T> extends BaseListener<T> {
     /**
      * Constructs an async listener using {@link #DEFAULT_EXECUTOR}
      *
-     * @see BaseListener#BaseListener(ListenerBody, int, Filter[])
+     * @see SyncListener#SyncListener(ListenerBody, int, Filter[])
      */
     @SafeVarargs
     public AsyncListener(ListenerBody<T> body, int priority, Filter<T>... filters) {
@@ -60,7 +60,7 @@ public class AsyncListener<T> extends BaseListener<T> {
      * Constructs an async listener
      *
      * @param executor executor used to invoke the body
-     * @see BaseListener#BaseListener(ListenerBody, Filter[])
+     * @see SyncListener#SyncListener(ListenerBody, Filter[])
      */
     @SafeVarargs
     public AsyncListener(ListenerBody<T> body,
@@ -75,7 +75,7 @@ public class AsyncListener<T> extends BaseListener<T> {
      * Constructs an async listener
      *
      * @param executor executor used to invoke the body
-     * @see BaseListener#BaseListener(ListenerBody, int, Filter[])
+     * @see SyncListener#SyncListener(ListenerBody, int, Filter[])
      */
     @SafeVarargs
     public AsyncListener(ListenerBody<T> body,

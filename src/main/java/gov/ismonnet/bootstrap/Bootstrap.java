@@ -37,6 +37,7 @@ public class Bootstrap {
 
     public void start() throws Exception {
         final RenderService.Side side;
+        final boolean spawnPuck;
         final NetService netService;
         final LifeCycleService netLifeCycle;
 
@@ -46,6 +47,7 @@ public class Bootstrap {
                         .injectPort(bootstrapService.choosePort())
                         .build();
                 side = RenderService.Side.LEFT;
+                spawnPuck = true;
                 netService = serverComponent.netService();
                 netLifeCycle = serverComponent.lifeCycle();
                 break;
@@ -54,6 +56,7 @@ public class Bootstrap {
                         .injectAddress(bootstrapService.chooseAddress())
                         .build();
                 side = RenderService.Side.RIGHT;
+                spawnPuck = false;
                 netService = clientComponent.netService();
                 netLifeCycle = clientComponent.lifeCycle();
                 break;
@@ -73,6 +76,7 @@ public class Bootstrap {
         final GameComponent gameComponent = gameBuilder
                 .injectNetService(netService)
                 .injectSide(side)
+                .injectSpawnPuck(spawnPuck)
                 .build();
         gameComponent.eagerInit();
 

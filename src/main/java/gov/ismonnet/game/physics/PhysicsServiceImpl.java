@@ -1,13 +1,10 @@
 package gov.ismonnet.game.physics;
 
-import gov.ismonnet.game.physics.entity.Entity;
+import gov.ismonnet.game.physics.entity.*;
 import gov.ismonnet.game.util.Timer;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 class PhysicsServiceImpl implements PhysicsService {
 
@@ -18,11 +15,19 @@ class PhysicsServiceImpl implements PhysicsService {
     private final List<Entity> entities;
     private final List<Entity> unmodifiableEntities;
 
-    @Inject PhysicsServiceImpl() {
+    @Inject PhysicsServiceImpl(Set<WallEntity> walls,
+                               GoalEntity goal,
+                               MiddleLineEntity middleLine,
+                               PuckEntity puck) {
         this.ticksTimer = new Timer();
 
         this.entities = new ArrayList<>();
         this.unmodifiableEntities = Collections.unmodifiableList(entities);
+
+        walls.forEach(this::spawnEntity);
+        spawnEntity(goal);
+        spawnEntity(middleLine);
+        spawnEntity(puck);
     }
 
     @Override
