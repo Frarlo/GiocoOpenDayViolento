@@ -79,15 +79,15 @@ class TableRenderer implements Renderer<SwingRenderContext, Table> {
         // Bottom wall
         ctx.drawImage(sideWallTexture,
                 toRender.getWallThickness(),
-                toRender.getHeight() - toRender.getWallThickness(),
+                toRender.getHeight(),
                 wallWidth,
-                toRender.getWallThickness(), null);
+                -toRender.getWallThickness(), null);
         // Bottom corner
         ctx.drawImage(sideCornerTexture,
                 toRender.getWallThickness() + wallWidth,
-                toRender.getHeight() - toRender.getWallThickness(),
+                toRender.getHeight(),
                 cornerWidth,
-                toRender.getWallThickness(), null);
+                -toRender.getWallThickness(), null);
     }
 
     private void renderGoalWall(SwingRenderContext ctx, Table toRender) {
