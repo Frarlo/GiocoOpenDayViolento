@@ -11,8 +11,8 @@ import gov.ismonnet.game.renderer.EmptyRenderer;
 import gov.ismonnet.game.renderer.RenderContext;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.Renderer;
-import gov.ismonnet.game.resource.ResourceService;
-import gov.ismonnet.game.resource.Ripped;
+import gov.ismonnet.resource.ResourceService;
+import gov.ismonnet.resource.Ripped;
 import gov.ismonnet.game.physics.table.Table;
 
 import javax.inject.Named;

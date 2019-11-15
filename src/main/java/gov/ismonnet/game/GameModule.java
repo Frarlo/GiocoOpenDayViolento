@@ -8,7 +8,7 @@ import gov.ismonnet.game.physics.PhysicsService;
 import gov.ismonnet.game.physics.table.TableModule;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.swing.SwingRendererModule;
-import gov.ismonnet.game.resource.ResourceModule;
+import gov.ismonnet.resource.ResourceModule;
 import gov.ismonnet.lifecycle.EagerInit;
 import gov.ismonnet.lifecycle.LifeCycleManager;
 import gov.ismonnet.lifecycle.LifeCycleService;
@@ -16,7 +16,6 @@ import gov.ismonnet.lifecycle.LifeCycleService;
 import javax.inject.Inject;
 
 @Module(includes = {
-        ResourceModule.class,
         PhysicsModule.class,
         SwingRendererModule.class,
         TableModule.class })
