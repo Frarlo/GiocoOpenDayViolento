@@ -6,19 +6,23 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class LifeCycleManager implements LifeCycleService {
 
+    private final String name;
     private final List<LifeCycle> registered;
 
     private final AtomicBoolean started;
     private int startedServices;
 
-    private final List<Runnable> beforeStopListener;
-    private final List<Runnable> afterStopListener;
+    protected final List<Runnable> beforeStopListener;
+    protected final List<Runnable> afterStopListener;
 
-    @Inject public LifeCycleManager() {
+    @Inject public LifeCycleManager(String name) {
+        this.name = name;
+
         registered = new CopyOnWriteArrayList<>();
         started = new AtomicBoolean(false);
 
@@ -31,7 +35,7 @@ public class LifeCycleManager implements LifeCycleService {
         if(started.getAndSet(true))
             throw new AssertionError("LifeCycle already started");
 
-        System.out.println("Starting lifecycle");
+        System.out.println("Starting lifecycle " + this);
         registered.forEach(lifeCycle -> {
             System.out.println("Starting lifecycle of " + lifeCycle.getClass().getSimpleName());
             startedServices++;
@@ -46,7 +50,7 @@ public class LifeCycleManager implements LifeCycleService {
 
         beforeStopListener.forEach(Runnable::run);
 
-        System.out.println("Stopping lifecycle");
+        System.out.println("Stopping lifecycle " + this);
         IntStream.range(0, startedServices)
                 .map(i -> startedServices - 1 - i)
                 .forEach(i -> {
@@ -74,6 +78,23 @@ public class LifeCycleManager implements LifeCycleService {
     }
 
     @Override
+    public LifeCycleService merge(LifeCycleService other) {
+
+        // Register both lifecycle to depend on the other one
+        // so if one gets stopped the other does too
+        final AtomicBoolean stopping = new AtomicBoolean(false);
+        final Consumer<LifeCycleService> onStop = (o) -> {
+            if(!stopping.getAndSet(true))
+                SneakyThrow.runUnchecked(o::stop);
+        };
+
+        beforeStop(() -> onStop.accept(other));
+        other.afterStop(() -> onStop.accept(this));
+
+        return new MergedLifeCycle(this, other);
+    }
+
+    @Override
     public void beforeStop(Runnable runnable) {
         beforeStopListener.add(runnable);
     }
@@ -81,5 +102,16 @@ public class LifeCycleManager implements LifeCycleService {
     @Override
     public void afterStop(Runnable runnable) {
         afterStopListener.add(runnable);
+    }
+
+    @Override
+    public String toString() {
+        return "LifeCycleManager{" +
+                "name='" + name + '\'' +
+                ", started=" + started +
+                ", startedServices=" + startedServices +
+                ", beforeStopListener=" + beforeStopListener +
+                ", afterStopListener=" + afterStopListener +
+                '}';
     }
 }

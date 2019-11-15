@@ -6,6 +6,8 @@ public interface LifeCycleService extends LifeCycle {
 
     void unregister(LifeCycle lifeCycle);
 
+    LifeCycleService merge(LifeCycleService lifeCycleService);
+
     void beforeStop(Runnable runnable);
 
     void afterStop(Runnable runnable);

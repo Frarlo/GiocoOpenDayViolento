@@ -17,8 +17,10 @@ import gov.ismonnet.netty.packets.PongPacket;
 @Module(includes = SharedNetModule.class)
 abstract class ClientModule {
 
-    @Binds @NetSession
-    abstract LifeCycleService lifeCycleService(LifeCycleManager lifeCycleManager);
+    @Provides @NetSession
+    static LifeCycleService lifeCycleService() {
+        return new LifeCycleManager("client");
+    }
 
     @Binds @NetSession
     abstract NetService netService(ClientNetService clientNetService);

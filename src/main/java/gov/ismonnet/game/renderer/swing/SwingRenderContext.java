@@ -212,8 +212,7 @@ class SwingRenderContext extends Graphics2D implements RenderContext {
         draw(shape);
     }
 
-    // TODO: for drawing floating point images, translate and draw
-    // https://gamedev.stackexchange.com/a/45048
+    // Thanks to https://gamedev.stackexchange.com/a/45048
 
     public boolean drawImage(Image img, float x, float y, ImageObserver observer) {
         translate(x, y);

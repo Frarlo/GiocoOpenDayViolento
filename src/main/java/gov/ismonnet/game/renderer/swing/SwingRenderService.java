@@ -2,14 +2,14 @@ package gov.ismonnet.game.renderer.swing;
 
 import gov.ismonnet.game.physics.PhysicsService;
 import gov.ismonnet.game.physics.entity.Entity;
+import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.renderer.RenderContext;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.Renderer;
-import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.util.ScaledResolution;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
-import gov.ismonnet.util.SneakyThrow;
+import gov.ismonnet.swing.SwingWindow;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -29,17 +29,17 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
     private final PhysicsService physicsService;
     private final Table table;
 
-    private final JFrame frame;
+    private final SwingWindow window;
+    private final LifeCycleService lifeCycleService;
     private ScaledResolution scaledResolution;
 
     private final Map<Class, Renderer> renderers;
     private final Renderer<RenderContext, Object> fallbackRenderer;
     private final Renderer<SwingRenderContext, Entity> axisAlignedBBsRenderer;
 
-    private volatile boolean stopClient = true;
-
     @SuppressWarnings("unchecked")
-    @Inject SwingRenderService(Side side,
+    @Inject SwingRenderService(SwingWindow window,
+                               Side side,
                                PhysicsService physicsService,
                                Table table,
                                Map<Class<?>, Renderer> renderers,
@@ -51,25 +51,12 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
         this.physicsService = physicsService;
         this.table = table;
 
+        this.window = window;
+        this.lifeCycleService = lifeCycleService;
+
         this.renderers = Collections.unmodifiableMap(new HashMap<>(renderers));
         this.fallbackRenderer = fallbackRenderer;
         this.axisAlignedBBsRenderer = axisAlignedBBsRenderer;
-
-        // Swing swong
-
-        this.frame = new JFrame("SwingGame") {
-            @Override
-            public void dispose() {
-                if(stopClient)
-                    SneakyThrow.runUnchecked(lifeCycleService::stop);
-                super.dispose();
-            }
-        };
-        this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        this.frame.setSize((int) Math.ceil(table.getWidth()), (int) Math.ceil(table.getHeight()));
-        this.frame.setResizable(true);
-        this.frame.setLocationRelativeTo(null);
-        this.frame.setContentPane(this);
 
         this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         addComponentListener(new ResizeHandler());
@@ -79,15 +66,11 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
 
     @Override
     public void start() {
-        frame.setVisible(true);
+        window.setScreen(this);
     }
 
     @Override
     public void stop() {
-        frame.setVisible(false);
-
-        stopClient = false;
-        frame.dispose();
     }
 
     @Override

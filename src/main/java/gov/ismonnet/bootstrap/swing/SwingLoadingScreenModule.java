@@ -6,10 +6,9 @@ import gov.ismonnet.resource.ResourceService;
 
 import javax.inject.Singleton;
 import javax.swing.*;
-import java.awt.*;
 
 @Module
-public class LoadingScreenModule {
+abstract class SwingLoadingScreenModule {
 
     @Provides @Singleton
     static ImageIcon luca(ResourceService resourceService) {

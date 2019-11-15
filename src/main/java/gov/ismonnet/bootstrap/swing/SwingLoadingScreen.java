@@ -6,12 +6,12 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-class LoadingScreen extends JPanel {
+class SwingLoadingScreen extends JPanel {
 
     private final ImageIcon luca;
     private final JLabel lucaLabel;
 
-    @Inject LoadingScreen(ImageIcon luca) {
+    @Inject SwingLoadingScreen(ImageIcon luca) {
         this.luca = luca;
 
         lucaLabel = new ResizedLabel(luca);

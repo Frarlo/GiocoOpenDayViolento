@@ -5,23 +5,19 @@ import gov.ismonnet.bootstrap.BootstrapService;
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 
+public // TODO: temp
 class CliBootstrapService implements BootstrapService {
 
-    private static final int PORT = 3121;
+    static final int PORT = 3121;
 
     private final PrintStream out;
 
     private final Scanner scanner;
     private final InputStream in;
 
-    @Inject
-    CliBootstrapService(PrintStream out,
-                        InputStream in) {
+    @Inject CliBootstrapService(PrintStream out, InputStream in) {
         this.in = in;
         this.scanner = new Scanner(in);
         this.out = out;
@@ -45,17 +41,6 @@ class CliBootstrapService implements BootstrapService {
         }
     }
 
-    @Override
-    public int choosePort() {
-        return PORT;
-    }
-
-    @Override
-    public InetSocketAddress chooseAddress() {
-        out.println("Enter the server address: ");
-        return new InetSocketAddress(readAddress(), PORT);
-    }
-
     private int readInt(int min, int max) {
         int n = -1;
         boolean first = true;
@@ -72,15 +57,5 @@ class CliBootstrapService implements BootstrapService {
         } while (n < min || n > max);
 
         return n;
-    }
-
-    private InetAddress readAddress() {
-        while (true) {
-            try {
-                return InetAddress.getByName(scanner.nextLine());
-            } catch (UnknownHostException e) {
-                out.print("Invalid ipv4. Retry: ");
-            }
-        }
     }
 }
