@@ -1,6 +1,7 @@
 package gov.ismonnet.bootstrap.cli;
 
 import gov.ismonnet.bootstrap.ClientBootstrapService;
+import gov.ismonnet.bootstrap.DefaultPort;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -10,15 +11,20 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public // TODO: temp
 class CliClientBootstrapService implements ClientBootstrapService {
+
+    private final int port;
 
     private final PrintStream out;
 
     private final Scanner scanner;
     private final InputStream in;
 
-    @Inject CliClientBootstrapService(PrintStream out, InputStream in) {
+    @Inject CliClientBootstrapService(@DefaultPort int port,
+                                      @StdOut PrintStream out,
+                                      @StdIn InputStream in) {
+        this.port = port;
+
         this.in = in;
         this.scanner = new Scanner(in);
         this.out = out;
@@ -27,7 +33,7 @@ class CliClientBootstrapService implements ClientBootstrapService {
     @Override
     public InetSocketAddress chooseAddress() {
         out.println("Enter the server address: ");
-        return new InetSocketAddress(readAddress(), CliBootstrapService.PORT);
+        return new InetSocketAddress(readAddress(), port);
     }
 
     private InetAddress readAddress() {

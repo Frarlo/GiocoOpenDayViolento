@@ -10,7 +10,6 @@ import gov.ismonnet.netty.core.PacketIdService;
 import gov.ismonnet.netty.core.PacketParser;
 import gov.ismonnet.netty.packets.*;
 
-import javax.inject.Named;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +20,7 @@ public abstract class SharedNetModule {
     @Binds @NetSession
     abstract PacketIdService packetIdService(PacketIdServiceImpl impl);
 
-    @Provides @Named("keep_alive_timeout")
+    @Provides @KeepAliveTimeout
     static int keepAliveTimeout() {
         return Integer.MAX_VALUE;
     }

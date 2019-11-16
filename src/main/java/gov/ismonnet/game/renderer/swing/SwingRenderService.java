@@ -9,6 +9,7 @@ import gov.ismonnet.game.renderer.Renderer;
 import gov.ismonnet.game.util.ScaledResolution;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
+import gov.ismonnet.swing.BackgroundColor;
 import gov.ismonnet.swing.SwingWindow;
 
 import javax.inject.Inject;
@@ -22,15 +23,13 @@ import java.util.Map;
 
 public class SwingRenderService extends JPanel implements RenderService, LifeCycle {
 
-    private static final Color BACKGROUND_COLOR = new Color(33, 33, 33);
-
     private Side side;
 
     private final PhysicsService physicsService;
     private final Table table;
 
     private final SwingWindow window;
-    private final LifeCycleService lifeCycleService;
+    private final Color backgroundColor;
     private ScaledResolution scaledResolution;
 
     private final Map<Class, Renderer> renderers;
@@ -39,6 +38,7 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
 
     @SuppressWarnings("unchecked")
     @Inject SwingRenderService(SwingWindow window,
+                               @BackgroundColor Color backgroundColor,
                                Side side,
                                PhysicsService physicsService,
                                Table table,
@@ -46,13 +46,12 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
                                Renderer<RenderContext, Object> fallbackRenderer,
                                Renderer axisAlignedBBsRenderer,
                                LifeCycleService lifeCycleService) {
+        this.window = window;
+        this.backgroundColor = backgroundColor;
         this.side = side;
 
         this.physicsService = physicsService;
         this.table = table;
-
-        this.window = window;
-        this.lifeCycleService = lifeCycleService;
 
         this.renderers = Collections.unmodifiableMap(new HashMap<>(renderers));
         this.fallbackRenderer = fallbackRenderer;
@@ -84,7 +83,7 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
         final SwingRenderContext ctx = new SwingRenderContext((Graphics2D) g);
 
         ctx.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        ctx.setBackground(BACKGROUND_COLOR);
+        ctx.setBackground(backgroundColor);
         ctx.clearRect(0, 0, getWidth(), getHeight());
 
         setupScaling(ctx, true);

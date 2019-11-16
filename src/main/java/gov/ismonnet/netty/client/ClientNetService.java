@@ -5,6 +5,8 @@ import gov.ismonnet.event.bus.BaseBus;
 import gov.ismonnet.event.bus.WeakBus;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
+import gov.ismonnet.netty.Address;
+import gov.ismonnet.netty.KeepAliveTimeout;
 import gov.ismonnet.netty.codecs.ByteStuffingDecoder;
 import gov.ismonnet.netty.codecs.ByteStuffingEncoder;
 import gov.ismonnet.netty.codecs.PacketDecoder;
@@ -27,7 +29,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -54,8 +55,8 @@ public class ClientNetService implements NetService, LifeCycle {
 
     private Future<?> pingFuture;
 
-    @Inject ClientNetService(@Named("socket_address") InetSocketAddress address,
-                             @Named("keep_alive_timeout") int keepAliveTimeout,
+    @Inject ClientNetService(@Address InetSocketAddress address,
+                             @KeepAliveTimeout int keepAliveTimeout,
                              PacketIdService packetIdService,
                              LifeCycleService lifeCycleService) {
         this.address = address;

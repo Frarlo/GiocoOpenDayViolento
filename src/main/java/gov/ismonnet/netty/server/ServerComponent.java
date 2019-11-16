@@ -4,9 +4,8 @@ import dagger.BindsInstance;
 import dagger.Subcomponent;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.netty.NetSession;
+import gov.ismonnet.netty.Port;
 import gov.ismonnet.netty.core.NetService;
-
-import javax.inject.Named;
 
 @NetSession
 @Subcomponent(modules = ServerModule.class)
@@ -20,7 +19,7 @@ public interface ServerComponent {
     interface Builder {
 
         @BindsInstance
-        Builder injectPort(@Named("socket_port") int port);
+        Builder injectPort(@Port int port);
 
         ServerComponent build();
     }

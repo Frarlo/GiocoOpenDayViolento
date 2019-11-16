@@ -1,4 +1,4 @@
-package gov.ismonnet.bootstrap;
+package gov.ismonnet.netty;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.ElementType;
@@ -8,6 +8,6 @@ import java.lang.annotation.Target;
 
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
-public @interface Bootstrap {
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER})
+public @interface Address {
 }

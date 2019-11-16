@@ -19,7 +19,7 @@ public class SwingWindow implements LifeCycle {
 
     private final AtomicBoolean disposing = new AtomicBoolean(false);
 
-    @Inject SwingWindow(@Named("bootstrap") LifeCycleService lifeCycleService) {
+    @Inject SwingWindow(@Bootstrap LifeCycleService lifeCycleService) {
         this.lifeCycleService = lifeCycleService;
 
         this.frame = new ActualFrame();
@@ -56,7 +56,8 @@ public class SwingWindow implements LifeCycle {
             setTitle("SwingGame");
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-            setSize(800, 900);
+            setSize(1200, 800);
+            setMinimumSize(new Dimension(600, 400));
             setResizable(true);
             setLocationRelativeTo(null);
         }

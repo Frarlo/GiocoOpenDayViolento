@@ -1,8 +1,8 @@
-import gov.ismonnet.bootstrap.cli.DaggerCliBootstrapComponent;
+import gov.ismonnet.bootstrap.swing.DaggerSwingBootstrapComponent;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        DaggerCliBootstrapComponent.create()
+        DaggerSwingBootstrapComponent.create()
                 .bootstrap()
                 .start();
     }

@@ -5,6 +5,8 @@ import gov.ismonnet.event.bus.BaseBus;
 import gov.ismonnet.event.bus.WeakBus;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
+import gov.ismonnet.netty.KeepAliveTimeout;
+import gov.ismonnet.netty.Port;
 import gov.ismonnet.netty.codecs.ByteStuffingDecoder;
 import gov.ismonnet.netty.codecs.ByteStuffingEncoder;
 import gov.ismonnet.netty.codecs.PacketDecoder;
@@ -29,7 +31,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -56,8 +57,8 @@ public class ServerNetService implements NetService, LifeCycle {
 
     private volatile boolean isStopped = false;
 
-    @Inject ServerNetService(@Named("socket_port") int port,
-                             @Named("keep_alive_timeout") int keepAliveTimeout,
+    @Inject ServerNetService(@Port int port,
+                             @KeepAliveTimeout int keepAliveTimeout,
                              PacketIdService packetIdService,
                              LifeCycleService lifeCycleService) {
         this.port = port;

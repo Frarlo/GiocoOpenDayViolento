@@ -1,12 +1,12 @@
 package gov.ismonnet.bootstrap.cli;
 
 import dagger.Component;
-import gov.ismonnet.bootstrap.Bootstrap;
+import gov.ismonnet.bootstrap.Bootstrapper;
 
 import javax.inject.Singleton;
 
 @Singleton
 @Component(modules = CliBootstrapModule.class)
 public interface CliBootstrapComponent {
-    Bootstrap bootstrap();
+    Bootstrapper bootstrap();
 }

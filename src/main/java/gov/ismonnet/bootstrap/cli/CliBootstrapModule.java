@@ -25,11 +25,13 @@ abstract class CliBootstrapModule {
     @Binds @Singleton
     abstract ClientBootstrapService clientBootstrapService(CliClientBootstrapService cliClientBootstrapService);
 
-    @Provides static PrintStream out() {
+    @Provides @StdOut
+    static PrintStream out() {
         return System.out;
     }
 
-    @Provides static InputStream in() {
+    @Provides @StdIn
+    static InputStream in() {
         return System.in;
     }
 }

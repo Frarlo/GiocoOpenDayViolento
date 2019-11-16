@@ -10,14 +10,13 @@ import java.util.Scanner;
 public // TODO: temp
 class CliBootstrapService implements BootstrapService {
 
-    static final int PORT = 3121;
-
     private final PrintStream out;
 
     private final Scanner scanner;
     private final InputStream in;
 
-    @Inject CliBootstrapService(PrintStream out, InputStream in) {
+    @Inject CliBootstrapService(@StdOut PrintStream out,
+                                @StdIn InputStream in) {
         this.in = in;
         this.scanner = new Scanner(in);
         this.out = out;

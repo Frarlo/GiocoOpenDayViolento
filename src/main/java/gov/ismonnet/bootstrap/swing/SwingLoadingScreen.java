@@ -1,41 +1,64 @@
 package gov.ismonnet.bootstrap.swing;
 
+import gov.ismonnet.swing.BackgroundColor;
+import gov.ismonnet.swing.SwingGraphics;
+
 import javax.inject.Inject;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 class SwingLoadingScreen extends JPanel {
 
     private final ImageIcon luca;
     private final JLabel lucaLabel;
+    private final String message;
 
-    @Inject SwingLoadingScreen(ImageIcon luca) {
+    @Inject SwingLoadingScreen(@BackgroundColor Color backgroundColor,
+                               ImageIcon luca, String message) {
         this.luca = luca;
+        this.message = message;
 
-        lucaLabel = new ResizedLabel(luca);
-        lucaLabel.setBounds(0, 0, getWidth(), getHeight());
+        this.lucaLabel = new BlankLabel(luca);
+
+        setBackground(backgroundColor);
         add(lucaLabel);
-
-        addComponentListener(new ResizeHandler());
     }
 
-    private class ResizeHandler extends ComponentAdapter {
-        public void componentResized(ComponentEvent e) {
-            lucaLabel.setBounds(0, 0, getWidth(), getHeight());
-        }
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        if(!(g instanceof Graphics2D))
+            throw new AssertionError("Swing did not create a Graphics2D object");
+
+        final SwingGraphics g2d = new SwingGraphics((Graphics2D) g);
+        g2d.setColor(Color.white);
+
+        final float lineY = getHeight() / 8F * 7F;
+        final float xBorder = 50;
+        g2d.drawLine(xBorder, lineY, getWidth() - xBorder, lineY);
+
+        g2d.textSize(12);
+        g2d.textAlign(SwingGraphics.HorizontalAlignment.LEFT, SwingGraphics.VerticalAlignment.BOTTOM);
+        g2d.drawString(message, xBorder, lineY - 2);
+
+        final Image img = luca.getImage();
+        final float imgY = lineY / 16F;
+        final float imgHeight = lineY / 16F * 14F;
+
+        final float imgWidth = imgHeight / img.getHeight(null) * img.getWidth(null);
+        final float imgX = getWidth() - xBorder - imgWidth;
+
+        g2d.drawImage(img, imgX, imgY, imgWidth, imgHeight, this);
     }
 
-    private class ResizedLabel extends JLabel {
+    private static class BlankLabel extends JLabel {
 
-        ResizedLabel(Icon image) {
+        BlankLabel(Icon image) {
             super(image);
         }
 
         @Override
-        protected void paintComponent(Graphics g) {
-            g.drawImage(luca.getImage(), 0,0, getWidth(), getHeight(),this);
-        }
+        protected void paintComponent(Graphics g) {}
     }
 }

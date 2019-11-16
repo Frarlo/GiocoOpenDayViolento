@@ -3,10 +3,10 @@ package gov.ismonnet.netty.client;
 import dagger.BindsInstance;
 import dagger.Subcomponent;
 import gov.ismonnet.lifecycle.LifeCycleService;
+import gov.ismonnet.netty.Address;
 import gov.ismonnet.netty.NetSession;
 import gov.ismonnet.netty.core.NetService;
 
-import javax.inject.Named;
 import java.net.InetSocketAddress;
 
 @NetSession
@@ -21,7 +21,7 @@ public interface ClientComponent {
     interface Builder {
 
         @BindsInstance
-        Builder injectAddress(@Named("socket_address") InetSocketAddress address);
+        Builder injectAddress(@Address InetSocketAddress address);
 
         ClientComponent build();
     }
