@@ -1,12 +1,13 @@
 package gov.ismonnet.swing;
 
+import gov.ismonnet.bootstrap.Bootstrap;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.util.SneakyThrow;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.swing.*;
+import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SwingWindow implements LifeCycle {
@@ -14,6 +15,8 @@ public class SwingWindow implements LifeCycle {
     private final LifeCycleService lifeCycleService;
 
     private final JFrame frame;
+    private JPanel currentScreen;
+
     private final AtomicBoolean disposing = new AtomicBoolean(false);
 
     @Inject SwingWindow(@Named("bootstrap") LifeCycleService lifeCycleService) {
@@ -35,10 +38,16 @@ public class SwingWindow implements LifeCycle {
     }
 
     public void setScreen(JPanel panel) {
-        frame.removeAll();
+        if(currentScreen != null)
+            frame.remove(currentScreen);
+
+        currentScreen = panel;
         frame.add(panel);
         frame.setContentPane(panel);
+        frame.setVisible(true);
+
         frame.validate();
+        frame.repaint();
     }
 
     private final class ActualFrame extends JFrame {
