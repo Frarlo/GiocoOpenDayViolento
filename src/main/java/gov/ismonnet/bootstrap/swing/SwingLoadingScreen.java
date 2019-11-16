@@ -10,7 +10,6 @@ import java.awt.*;
 class SwingLoadingScreen extends JPanel {
 
     private final ImageIcon luca;
-    private final JLabel lucaLabel;
     private final String message;
 
     @Inject SwingLoadingScreen(@BackgroundColor Color backgroundColor,
@@ -18,10 +17,7 @@ class SwingLoadingScreen extends JPanel {
         this.luca = luca;
         this.message = message;
 
-        this.lucaLabel = new BlankLabel(luca);
-
         setBackground(backgroundColor);
-        add(lucaLabel);
     }
 
     @Override
@@ -50,15 +46,5 @@ class SwingLoadingScreen extends JPanel {
         final float imgX = getWidth() - xBorder - imgWidth;
 
         g2d.drawImage(img, imgX, imgY, imgWidth, imgHeight, this);
-    }
-
-    private static class BlankLabel extends JLabel {
-
-        BlankLabel(Icon image) {
-            super(image);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {}
     }
 }
