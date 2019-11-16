@@ -4,19 +4,14 @@ import gov.ismonnet.bootstrap.BootstrapService;
 import gov.ismonnet.swing.SwingGraphics;
 import gov.ismonnet.swing.SwingWindow;
 import gov.ismonnet.util.SneakyThrow;
-import org.jdesktop.swingx.VerticalLayout;
 
 import javax.inject.Inject;
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 public class SwingBootstrapService extends JPanel implements BootstrapService {
 
@@ -111,64 +106,5 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
                     (int) (BUTTONS_BOX_HEIGHT * imgHeight / BACKGROUND_IMG_HEIGHT));
             buttonsPanel.revalidate();
         }
-    }
-
-    /*
-     * Created by JFormDesigner on Sat Nov 16 16:06:32 CET 2019
-     */
-    static class ButtonsPanel extends JPanel {
-
-        private final Consumer<ActionEvent> onServer;
-        private final Consumer<ActionEvent> onClient;
-
-        ButtonsPanel(Consumer<ActionEvent> onServer, Consumer<ActionEvent> onClient) {
-            this.onServer = onServer;
-            this.onClient = onClient;
-
-            initComponents();
-        }
-
-        private void clientBtnActionPerformed(ActionEvent e) {
-            onClient.accept(e);
-        }
-
-        private void serverBtnActionPerformed(ActionEvent e) {
-            onServer.accept(e);
-        }
-
-        @SuppressWarnings("all")
-        private void initComponents() {
-            // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-            // Generated using JFormDesigner Evaluation license - unknown
-            JPanel innerPanel = new JPanel();
-            JButton serverBtn = new JButton();
-            JButton clientBtn = new JButton();
-
-            //======== this ========
-            setBorder(new LineBorder(Color.darkGray, 1, true));
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
-            //======== innerPanel ========
-            {
-                innerPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-                innerPanel.setLayout(new VerticalLayout(5));
-
-                //---- serverBtn ----
-                serverBtn.setText("Ospita");
-                serverBtn.addActionListener(e -> serverBtnActionPerformed(e));
-                innerPanel.add(serverBtn);
-
-                //---- clientBtn ----
-                clientBtn.setText("Connettiti");
-                clientBtn.addActionListener(e -> clientBtnActionPerformed(e));
-                innerPanel.add(clientBtn);
-            }
-            add(innerPanel);
-            // JFormDesigner - End of component initialization  //GEN-END:initComponents
-        }
-
-        // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-        // Generated using JFormDesigner Evaluation license - unknown
-        // JFormDesigner - End of variables declaration  //GEN-END:variables
     }
 }
