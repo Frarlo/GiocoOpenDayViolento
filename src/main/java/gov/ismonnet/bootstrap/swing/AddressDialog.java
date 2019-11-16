@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
 
 class AddressDialog extends JDialog {
 
-    private CompletableFuture<String> addressFuture;
+    private final CompletableFuture<String> addressFuture;
 
     private AddressDialog(Window owner, CompletableFuture<String> addressFuture) {
         super(owner);
