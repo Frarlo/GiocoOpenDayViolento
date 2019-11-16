@@ -4,6 +4,7 @@ import gov.ismonnet.bootstrap.ClientBootstrapService;
 import gov.ismonnet.bootstrap.DefaultPort;
 import gov.ismonnet.swing.BackgroundColor;
 import gov.ismonnet.swing.SwingWindow;
+import gov.ismonnet.util.SneakyThrow;
 
 import javax.inject.Inject;
 import javax.swing.*;
@@ -26,8 +27,12 @@ class SwingClientBootstrapService extends SwingLoadingScreen implements ClientBo
     }
 
     @Override
-    public InetSocketAddress chooseAddress() {
-        return new InetSocketAddress("localhost", port);
+    public InetSocketAddress chooseAddress() throws UndecidedException {
+        final String address = SneakyThrow.callUnchecked(() ->
+                AddressDialog.getAddress(SwingUtilities.getWindowAncestor(this)).get());
+        if(address == null)
+            throw new UndecidedException();
+        return new InetSocketAddress(address, port);
     }
 
     @Override

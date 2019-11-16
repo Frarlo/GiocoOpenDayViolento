@@ -1,5 +1,6 @@
 package gov.ismonnet.bootstrap;
 
+import gov.ismonnet.bootstrap.swing.UndecidedException;
 import gov.ismonnet.game.GameComponent;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.lifecycle.EagerInit;
@@ -64,10 +65,18 @@ public class Bootstrapper {
         bootstrapLifeCycle.beforeStop(currentThread::interrupt);
 
         try {
-            while (!currentThread.isInterrupted())
-                start0();
+            while (!currentThread.isInterrupted()) {
+                try {
+                    start0();
+                } catch (UndecidedException ex) {
+                    // Ignored, just restart
+                }
+            }
         } catch (InterruptedException ex) {
             // Ignored
+        } catch (Throwable t) {
+            LOGGER.fatal("Unchaught exception", t);
+            System.exit(-1);
         }
     }
 
