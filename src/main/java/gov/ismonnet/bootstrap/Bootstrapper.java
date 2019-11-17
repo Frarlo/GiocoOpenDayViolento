@@ -75,7 +75,7 @@ public class Bootstrapper {
         } catch (InterruptedException ex) {
             // Ignored
         } catch (Throwable t) {
-            LOGGER.fatal("Unchaught exception", t);
+            LOGGER.fatal("Uncaught exception", t);
             System.exit(-1);
         }
     }
@@ -118,7 +118,10 @@ public class Bootstrapper {
                 throw new AssertionError("Bootstrapper hasn't implemented all possible user choices");
         }
 
+        // Since there is no way to remove a beforeStop listener,
+        // keep a reference to the netLifeCycle and, when it gets stopped, null it
         final AtomicReference<LifeCycleService> netLifeCycleReference = new AtomicReference<>(netLifeCycle);
+        netLifeCycle.afterStop(() -> netLifeCycleReference.set(null));
         bootstrapLifeCycle.beforeStop(() -> {
             if(netLifeCycleReference.get() != null)
                 SneakyThrow.runUnchecked(netLifeCycleReference.get()::stop);
@@ -143,19 +146,15 @@ public class Bootstrapper {
         gameComponent.eagerInit();
 
         final LifeCycleService mergedGameLifeCycle = netLifeCycle.merge(gameComponent.lifeCycle());
-        mergedGameLifeCycle.afterStop(() -> netLifeCycleReference.set(null));
 
         try {
             gameComponent.lifeCycle().start();
         } catch (InterruptedException ex) {
-            netLifeCycleReference.set(null);
             throw ex;
         } catch (Throwable t) {
             LOGGER.fatal("Exception while starting game lifecycle", t);
 
-            gameComponent.lifeCycle().stop();
-            netLifeCycle.stop();
-            netLifeCycleReference.set(null);
+            mergedGameLifeCycle.stop();
             return;
         }
 
