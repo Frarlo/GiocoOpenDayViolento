@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -107,15 +108,24 @@ public class ClientNetService implements NetService, LifeCycle {
 
         if(pingFuture != null)
             pingFuture.cancel(true);
+
         if(isConnected && channelFuture.channel().isOpen())
             sendPacket(new DisconnectPacket()).get();
         group.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
     @Override
-    public Future<Void> sendPacket(Packet packet) {
+    public CompletableFuture<Void> sendPacket(Packet packet) {
         LOGGER.trace("Sending packet {}", packet);
-        return channelFuture.channel().writeAndFlush(packet);
+
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        channelFuture.channel().writeAndFlush(packet).addListener(channelFuture -> {
+            if(channelFuture.isSuccess())
+                future.complete(null);
+            else
+                future.completeExceptionally(channelFuture.cause());
+        });
+        return future;
     }
 
     private final class KeepAliveHandler extends ChannelInboundHandlerAdapter {

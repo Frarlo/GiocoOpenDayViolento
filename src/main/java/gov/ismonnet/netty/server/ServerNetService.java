@@ -32,7 +32,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class ServerNetService implements NetService, LifeCycle {
@@ -115,17 +114,24 @@ public class ServerNetService implements NetService, LifeCycle {
     }
 
     @Override
-    public Future<Void> sendPacket(Packet packet) {
+    public CompletableFuture<Void> sendPacket(Packet packet) {
         LOGGER.trace("Sending packet {}", packet);
-        return clientChannel.writeAndFlush(packet);
+
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        clientChannel.writeAndFlush(packet).addListener(channelFuture -> {
+            if(channelFuture.isSuccess())
+                future.complete(null);
+            else
+                future.completeExceptionally(channelFuture.cause());
+        });
+        return future;
     }
 
     @ChannelHandler.Sharable
     private final class KeepAliveHandler extends SimpleChannelInboundHandler<Packet> {
 
         @Override
-        public void channelRead(ChannelHandlerContext ctx,
-                                Object msg) throws Exception {
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
             super.channelRead(ctx, msg);
             ctx.fireChannelRead(msg); // Make the packet go through the pipeline
         }
