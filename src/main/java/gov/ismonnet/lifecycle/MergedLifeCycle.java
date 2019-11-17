@@ -1,6 +1,8 @@
 package gov.ismonnet.lifecycle;
 
 import gov.ismonnet.util.SneakyThrow;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 public class MergedLifeCycle implements LifeCycleService {
+
+    private static final Logger LOGGER = LogManager.getLogger(MergedLifeCycle.class);
 
     private final List<LifeCycleService> lifeCycleServices;
 
@@ -29,7 +33,7 @@ public class MergedLifeCycle implements LifeCycleService {
 
     @Override
     public void stop()  {
-        System.out.println("Stopping merged lifecycle " + this);
+        LOGGER.info("Stopping merged lifecycle {}", this);
         // By stopping the last one, the afterStop hooks are going to stop all of them
         SneakyThrow.runUnchecked(() -> lifeCycleServices.get(lifeCycleServices.size() - 1).stop());
     }

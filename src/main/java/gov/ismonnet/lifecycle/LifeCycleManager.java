@@ -1,6 +1,8 @@
 package gov.ismonnet.lifecycle;
 
 import gov.ismonnet.util.SneakyThrow;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 public class LifeCycleManager implements LifeCycleService {
+
+    private static final Logger LOGGER = LogManager.getLogger(LifeCycleManager.class);
 
     private final String name;
     private final List<LifeCycle> registered;
@@ -35,9 +39,9 @@ public class LifeCycleManager implements LifeCycleService {
         if(started.getAndSet(true))
             throw new AssertionError("LifeCycle already started");
 
-        System.out.println("Starting lifecycle " + this);
+        LOGGER.info("Starting lifecycle {}", this);
         registered.forEach(lifeCycle -> {
-            System.out.println("Starting lifecycle of " + lifeCycle.getClass().getSimpleName());
+            LOGGER.info("Starting lifecycle of {}", lifeCycle.getClass().getSimpleName());
             startedServices++;
             SneakyThrow.runUnchecked(lifeCycle::start);
         });
@@ -50,17 +54,18 @@ public class LifeCycleManager implements LifeCycleService {
 
         beforeStopListener.forEach(Runnable::run);
 
-        System.out.println("Stopping lifecycle " + this);
+        LOGGER.info("Stopping lifecycle {}", this);
         IntStream.range(0, startedServices)
                 .map(i -> startedServices - 1 - i)
                 .forEach(i -> {
                     final LifeCycle lifeCycle = registered.get(i);
                     try {
-                        System.out.println("Stopping lifecycle of " + lifeCycle.getClass().getSimpleName());
+                        LOGGER.info("Stopping lifecycle of {}", lifeCycle.getClass().getSimpleName());
                         lifeCycle.stop();
                     } catch (Throwable t) {
-                        System.err.println("Exception while stopping lifecycle of " + lifeCycle.getClass().getSimpleName());
-                        t.printStackTrace(System.err);
+                        LOGGER.error(
+                                "Exception while stopping lifecycle of {}",
+                                lifeCycle.getClass().getSimpleName(), t);
                     }
                 });
 
