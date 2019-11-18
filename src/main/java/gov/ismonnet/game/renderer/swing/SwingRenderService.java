@@ -11,12 +11,13 @@ import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.swing.BackgroundColor;
 import gov.ismonnet.swing.SwingWindow;
+import gov.ismonnet.util.SneakyThrow;
 
 import javax.inject.Inject;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,6 +36,9 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
     private final Map<Class, Renderer> renderers;
     private final Renderer<RenderContext, Object> fallbackRenderer;
     private final Renderer<SwingRenderContext, Entity> axisAlignedBBsRenderer;
+
+    private final Robot robot;
+    private final FocusListener focusListener;
 
     @SuppressWarnings("unchecked")
     @Inject SwingRenderService(SwingWindow window,
@@ -60,6 +64,16 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
         this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         addComponentListener(new ResizeHandler());
 
+        this.robot = SneakyThrow.callUnchecked(Robot::new);
+        addMouseMotionListener(new MouseHandler());
+        window.addFocusListener(focusListener = new FocusHandler());
+        // Hide cursor for this panel
+        // Thanks to https://stackoverflow.com/a/10687248 and https://stackoverflow.com/a/1984117
+        setCursor(Toolkit.getDefaultToolkit().createCustomCursor(
+                new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB),
+                new Point(),
+                "blank cursor"));
+
         lifeCycleService.register(this);
     }
 
@@ -70,11 +84,14 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
 
     @Override
     public void stop() {
+        window.removeFocusListener(focusListener);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
         if(!(g instanceof Graphics2D))
             throw new AssertionError("Swing did not create a 2d graphics component :O");
 
@@ -116,6 +133,52 @@ public class SwingRenderService extends JPanel implements RenderService, LifeCyc
                 ctx.scale(-1, 1);
                 ctx.translate(getWidth(), 0);
             }
+        }
+    }
+
+    private void onMouseMoved(MouseEvent e) {
+        // Just if this window is focused
+        if(!window.isActive())
+            return;
+        // Thanks to https://stackoverflow.com/a/32159962
+        // Moved by Robot, don't care
+        if(e.getX() == getWidth() / 2 && e.getY() == getHeight() / 2)
+            return;
+        // Move the mouse back to the center
+        centerCursor();
+        // Register the actual movement
+        final int moveX = e.getX() - getWidth() / 2;
+        final int moveY = e.getY() - getHeight() / 2;
+        System.out.println("moved: " + moveX + " " + moveY);
+    }
+
+    private void centerCursor() {
+        // Move the mouse back to the center
+        final Point p = getLocationOnScreen();
+        robot.mouseMove( (int) p.getX() + getWidth() / 2, (int) p.getY() + getHeight() / 2);
+    }
+
+    private class MouseHandler extends MouseAdapter {
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            onMouseMoved(e);
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            onMouseMoved(e);
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            centerCursor();
+        }
+    }
+
+    public class FocusHandler extends FocusAdapter {
+        @Override
+        public void focusGained(FocusEvent e) {
+            centerCursor();
         }
     }
 

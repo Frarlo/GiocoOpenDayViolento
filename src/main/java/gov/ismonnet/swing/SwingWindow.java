@@ -10,11 +10,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SwingWindow implements LifeCycle {
+public class SwingWindow extends JFrame implements LifeCycle {
 
     private final LifeCycleService lifeCycleService;
 
-    private final JFrame frame;
     private JPanel currentScreen;
 
     private final AtomicBoolean disposing = new AtomicBoolean(false);
@@ -22,8 +21,15 @@ public class SwingWindow implements LifeCycle {
     @Inject SwingWindow(@Bootstrap LifeCycleService lifeCycleService) {
         this.lifeCycleService = lifeCycleService;
 
-        this.frame = new ActualFrame();
-        lifeCycleService.beforeStop(() -> frame.setVisible(false));
+        setTitle("SwingGame");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        setSize(1200, 800);
+        setMinimumSize(new Dimension(600, 400));
+        setResizable(true);
+        setLocationRelativeTo(null);
+
+        lifeCycleService.beforeStop(() -> setVisible(false));
         lifeCycleService.register(this);
     }
 
@@ -34,43 +40,30 @@ public class SwingWindow implements LifeCycle {
     @Override
     public void stop() {
         disposing.set(true);
-        frame.dispose();
+        dispose();
+    }
+
+    @Override
+    public void dispose() {
+        if(!disposing.getAndSet(true))
+            SneakyThrow.runUnchecked(lifeCycleService::stop);
+        super.dispose();
+        disposing.set(false);
     }
 
     public void setScreen(JPanel panel) {
 
         if(panel != currentScreen) {
             if(currentScreen != null)
-                frame.remove(currentScreen);
+                remove(currentScreen);
 
             currentScreen = panel;
-            frame.add(panel);
-            frame.setContentPane(panel);
-            frame.setVisible(true);
+            add(panel);
+            setContentPane(panel);
+            setVisible(true);
         }
 
-        frame.revalidate();
-        frame.repaint();
-    }
-
-    private final class ActualFrame extends JFrame {
-
-        ActualFrame() {
-            setTitle("SwingGame");
-            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-            setSize(1200, 800);
-            setMinimumSize(new Dimension(600, 400));
-            setResizable(true);
-            setLocationRelativeTo(null);
-        }
-
-        @Override
-        public void dispose() {
-            if(!disposing.getAndSet(true))
-                SneakyThrow.runUnchecked(lifeCycleService::stop);
-            super.dispose();
-            disposing.set(false);
-        }
+        revalidate();
+        repaint();
     }
 }
