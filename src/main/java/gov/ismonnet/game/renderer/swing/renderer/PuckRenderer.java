@@ -1,13 +1,14 @@
-package gov.ismonnet.game.renderer.swing;
+package gov.ismonnet.game.renderer.swing.renderer;
 
 import gov.ismonnet.game.physics.entity.PuckEntity;
-import gov.ismonnet.game.renderer.Renderer;
+import gov.ismonnet.game.renderer.swing.SwingRenderContext;
+import gov.ismonnet.game.renderer.swing.SwingRenderer;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.awt.image.BufferedImage;
 
-class PuckRenderer implements Renderer<SwingRenderContext, PuckEntity> {
+class PuckRenderer implements SwingRenderer<PuckEntity> {
 
     private final BufferedImage puckTexture;
 

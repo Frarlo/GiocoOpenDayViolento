@@ -16,8 +16,9 @@ import java.awt.*;
 public abstract class SwingModule {
 
     @Provides @Singleton
-    static SwingWindow swingWindow(@Bootstrap LifeCycleService lifeCycleService) {
-        return new SwingWindow(lifeCycleService);
+    static SwingWindow swingWindow(SwingWindowFactory factory) {
+        // Workaround for https://github.com/google/dagger/issues/890
+        return factory.create();
     }
 
     @Provides @Singleton @BackgroundColor

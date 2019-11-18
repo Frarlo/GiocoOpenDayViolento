@@ -1,4 +1,4 @@
-package gov.ismonnet.game.renderer.swing;
+package gov.ismonnet.game.renderer.swing.renderer;
 
 import dagger.Binds;
 import dagger.Module;
@@ -6,14 +6,12 @@ import dagger.Provides;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 import gov.ismonnet.game.GameSession;
+import gov.ismonnet.game.physics.entity.Entity;
 import gov.ismonnet.game.physics.entity.PuckEntity;
-import gov.ismonnet.game.renderer.EmptyRenderer;
-import gov.ismonnet.game.renderer.RenderContext;
-import gov.ismonnet.game.renderer.RenderService;
-import gov.ismonnet.game.renderer.Renderer;
+import gov.ismonnet.game.physics.table.Table;
+import gov.ismonnet.game.renderer.swing.SwingRenderer;
 import gov.ismonnet.resource.ResourceService;
 import gov.ismonnet.resource.Ripped;
-import gov.ismonnet.game.physics.table.Table;
 
 import javax.inject.Named;
 import java.awt.image.BufferedImage;
@@ -24,19 +22,17 @@ public abstract class SwingRendererModule {
     private static final boolean DRAW_COLLISION_BOXES = false;
 
     @Binds @GameSession
-    abstract RenderService renderService(SwingRenderService swingRenderService);
-
-    @Binds @GameSession
-    abstract Renderer<RenderContext, Object> fallbackRenderer(EmptyRenderer emptyRenderer);
+    abstract SwingRenderer<Object> fallbackRenderer(EmptyRenderer emptyRenderer);
 
     @Provides @GameSession
-    static Renderer axisAlignedBBsRenderer(AxisAlignedBBsRenderer renderer,
-                                           EmptyRenderer emptyRenderer) {
+    static SwingRenderer<? super Entity> axisAlignedBBsRenderer(AxisAlignedBBsRenderer renderer,
+                                                                EmptyRenderer emptyRenderer) {
         return DRAW_COLLISION_BOXES ? renderer : emptyRenderer;
     }
 
-    @Binds @IntoMap @ClassKey(PuckEntity.class)
-    abstract Renderer puckRenderer(PuckRenderer puckRenderer);
+    @Binds @IntoMap
+    @ClassKey(PuckEntity.class)
+    abstract SwingRenderer puckRenderer(PuckRenderer puckRenderer);
 
     @Provides @Named("puck_texture")
     static BufferedImage puckTexture(@Ripped ResourceService resourceService) {
@@ -44,7 +40,7 @@ public abstract class SwingRendererModule {
     }
 
     @Binds @IntoMap @ClassKey(Table.class)
-    abstract Renderer tableRenderer(TableRenderer tableRenderer);
+    abstract SwingRenderer tableRenderer(TableRenderer tableRenderer);
 
     @Provides @Named("table_texture")
     static BufferedImage tableTexture(@Ripped ResourceService resourceService) {

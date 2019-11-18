@@ -1,12 +1,13 @@
-package gov.ismonnet.game.renderer.swing;
+package gov.ismonnet.game.renderer.swing.renderer;
 
 import gov.ismonnet.game.physics.entity.Entity;
-import gov.ismonnet.game.renderer.Renderer;
+import gov.ismonnet.game.renderer.swing.SwingRenderContext;
+import gov.ismonnet.game.renderer.swing.SwingRenderer;
 
 import javax.inject.Inject;
 import java.awt.*;
 
-public class AxisAlignedBBsRenderer implements Renderer<SwingRenderContext, Entity> {
+class AxisAlignedBBsRenderer implements SwingRenderer<Entity> {
 
     @Inject AxisAlignedBBsRenderer() {}
 
