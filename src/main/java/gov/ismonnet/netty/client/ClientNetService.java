@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientNetService implements NetService, LifeCycle {
 
     private static final Logger LOGGER = LogManager.getLogger(ClientNetService.class);
-    private final static int SHUTDOWN_TIMEOUT = 5000;
+//    private final static int SHUTDOWN_TIMEOUT = 5000;
 
     private final LifeCycleService lifeCycleService;
 
@@ -103,15 +103,21 @@ public class ClientNetService implements NetService, LifeCycle {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         isStopped = true;
 
         if(pingFuture != null)
             pingFuture.cancel(true);
 
+//        if(isConnected && channelFuture.channel().isOpen())
+//            sendPacket(new DisconnectPacket()).get();
+//        group.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+
         if(isConnected && channelFuture.channel().isOpen())
-            sendPacket(new DisconnectPacket()).get();
-        group.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+            sendPacket(new DisconnectPacket())
+                    .thenRun(() -> group.shutdownGracefully());
+        else
+            group.shutdownGracefully();
     }
 
     @Override

@@ -37,7 +37,9 @@ import java.util.concurrent.TimeUnit;
 public class ServerNetService implements NetService, LifeCycle {
 
     private static final Logger LOGGER = LogManager.getLogger(ServerNetService.class);
-    private final static int SHUTDOWN_TIMEOUT = 5000;
+//    private final static int SHUTDOWN_TIMEOUT = 5000;
+
+    private static CompletableFuture<Void> SHUT_DOWN_FUTURE = CompletableFuture.completedFuture(null);
 
     private final LifeCycleService lifeCycleService;
 
@@ -94,6 +96,10 @@ public class ServerNetService implements NetService, LifeCycle {
 
     @Override
     public void start() throws Exception {
+        LOGGER.trace("Waiting for previous socket to release...");
+        SHUT_DOWN_FUTURE.get();
+        LOGGER.trace("Binding new socket...");
+
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
 
@@ -107,10 +113,21 @@ public class ServerNetService implements NetService, LifeCycle {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         isStopped = true;
-        bossGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
-        workerGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+//        bossGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+//        workerGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        bossGroup.shutdownGracefully()
+                .addListener(f0 -> workerGroup.shutdownGracefully()
+                        .addListener(f -> {
+                            if(f.isSuccess())
+                                future.complete(null);
+                            else
+                                future.completeExceptionally(f.cause());
+                        }));
+        SHUT_DOWN_FUTURE = future;
     }
 
     @Override
