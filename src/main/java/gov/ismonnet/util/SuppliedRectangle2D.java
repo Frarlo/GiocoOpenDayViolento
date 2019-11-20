@@ -1,4 +1,4 @@
-package gov.ismonnet.game.util;
+package gov.ismonnet.util;
 
 import java.awt.geom.Rectangle2D;
 import java.util.function.DoubleSupplier;

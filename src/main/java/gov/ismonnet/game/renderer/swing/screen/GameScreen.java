@@ -7,7 +7,7 @@ import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderContext;
 import gov.ismonnet.game.renderer.swing.SwingRenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderer;
-import gov.ismonnet.game.util.ScaledResolution;
+import gov.ismonnet.util.ScaledResolution;
 import gov.ismonnet.swing.SwingWindow;
 
 import javax.inject.Inject;

@@ -1,12 +1,15 @@
 package gov.ismonnet.game.physics;
 
 import gov.ismonnet.game.physics.entity.*;
-import gov.ismonnet.game.util.Timer;
+import gov.ismonnet.util.Timer;
+import gov.ismonnet.lifecycle.LifeCycle;
+import gov.ismonnet.lifecycle.LifeCycleService;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.*;
 
-class PhysicsServiceImpl implements PhysicsService {
+class PhysicsServiceImpl implements PhysicsService, LifeCycle {
 
     private static final int TPS = 64;
 
@@ -15,19 +18,40 @@ class PhysicsServiceImpl implements PhysicsService {
     private final List<Entity> entities;
     private final List<Entity> unmodifiableEntities;
 
-    @Inject PhysicsServiceImpl(Set<WallEntity> walls,
-                               GoalEntity goal,
-                               MiddleLineEntity middleLine,
-                               PuckEntity puck) {
+    // Break cyclic dependencies
+    private final Provider<Set<WallEntity>> walls;
+    private final Provider<GoalEntity> goal;
+    private final Provider<MiddleLineEntity> middleLine;
+    private final Provider<PuckEntity> puck;
+
+    @Inject PhysicsServiceImpl(Provider<Set<WallEntity>> walls,
+                               Provider<GoalEntity> goal,
+                               Provider<MiddleLineEntity> middleLine,
+                               Provider<PuckEntity> puck,
+                               LifeCycleService lifeCycleService) {
         this.ticksTimer = new Timer();
 
         this.entities = new ArrayList<>();
         this.unmodifiableEntities = Collections.unmodifiableList(entities);
 
-        walls.forEach(this::spawnEntity);
-        spawnEntity(goal);
-        spawnEntity(middleLine);
-        spawnEntity(puck);
+        this.walls = walls;
+        this.goal = goal;
+        this.middleLine = middleLine;
+        this.puck = puck;
+
+        lifeCycleService.register(this);
+    }
+
+    @Override
+    public void start() {
+        walls.get().forEach(this::spawnEntity);
+        spawnEntity(goal.get());
+        spawnEntity(middleLine.get());
+        spawnEntity(puck.get());
+    }
+
+    @Override
+    public void stop() {
     }
 
     @Override

@@ -1,4 +1,4 @@
-package gov.ismonnet.game.util;
+package gov.ismonnet.util;
 
 public class ScaledResolution {
 

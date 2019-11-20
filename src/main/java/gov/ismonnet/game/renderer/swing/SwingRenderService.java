@@ -5,7 +5,7 @@ import com.google.auto.factory.Provided;
 import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.Screen;
-import gov.ismonnet.game.util.ScaledResolution;
+import gov.ismonnet.util.ScaledResolution;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.swing.BackgroundColor;

@@ -69,20 +69,21 @@ public class SwingWindow extends JFrame implements LifeCycle {
         disposing.set(false);
     }
 
-    public void setScreen(JPanel panel) {
+    public void setScreen(JPanel newScreen) {
+        if(newScreen == currentScreen)
+            return;
 
-        if(panel != currentScreen) {
-            if(currentScreen != null)
-                remove(currentScreen);
+        final JPanel oldScreen = currentScreen;
+        currentScreen = newScreen;
 
-            currentScreen = panel;
-            add(panel);
-            setContentPane(panel);
+        EventQueue.invokeLater(() -> {
+            if(oldScreen != null)
+                remove(oldScreen);
+
+            add(newScreen);
+            setContentPane(newScreen);
             setVisible(true);
-        }
-
-        revalidate();
-        repaint();
+        });
     }
 
     public JPanel getCurrentScreen() {

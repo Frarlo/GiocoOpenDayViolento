@@ -6,6 +6,7 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import gov.ismonnet.game.physics.PhysicsModule;
 import gov.ismonnet.game.physics.PhysicsService;
+import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.physics.table.TableModule;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderModule;
@@ -31,6 +32,7 @@ abstract class GameModule {
 
     static class EagerInitImpl implements EagerInit {
         @Inject EagerInitImpl(PhysicsService physicsService,
-                              RenderService renderService) {}
+                              RenderService renderService,
+                              Table table) {}
     }
 }

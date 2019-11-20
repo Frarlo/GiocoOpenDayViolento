@@ -3,7 +3,7 @@ package gov.ismonnet.game.renderer.swing.screen;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderService;
 import gov.ismonnet.game.renderer.swing.SwingScreen;
-import gov.ismonnet.game.util.ScaledResolution;
+import gov.ismonnet.util.ScaledResolution;
 import gov.ismonnet.swing.SwingWindow;
 
 import java.awt.event.FocusEvent;

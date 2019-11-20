@@ -2,6 +2,7 @@ package gov.ismonnet.game.physics.entity;
 
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+import dagger.Lazy;
 import gov.ismonnet.event.EventListener;
 import gov.ismonnet.event.Listener;
 import gov.ismonnet.event.listeners.SyncListener;
@@ -18,7 +19,7 @@ public class PuckEntity extends BaseEntity {
 
     private static final float MOTION_STEP = 0.1f;
 
-    private final Set<WallEntity> walls;
+    private final Lazy<Set<WallEntity>> lazyWalls;
 
     private final float radius;
 
@@ -30,10 +31,10 @@ public class PuckEntity extends BaseEntity {
     @Inject PuckEntity(float startX, float startY,
                        float radius,
                        float motionX, float motionY,
-                       @Provided Set<WallEntity> walls,
+                       @Provided Lazy<Set<WallEntity>> lazyWalls,
                        @Provided NetService netService) {
 
-        this.walls = walls;
+        this.lazyWalls = lazyWalls;
 
         this.collider = new CircleCollider(this::getPosX, this::getPosY, () -> radius);
         this.prevPosXCollider = new CircleCollider(() -> prevPosX, this::getPosY, () -> radius);
@@ -61,7 +62,7 @@ public class PuckEntity extends BaseEntity {
         boolean collidesHorizontally = false;
         boolean collidesVertically = false;
 
-        for(WallEntity wall : walls) {
+        for(WallEntity wall : lazyWalls.get()) {
             if(!collidesHorizontally && !prevPosXCollider.collidesWith(wall) && collidesWith(wall))
                 collidesHorizontally = true;
             if(!collidesVertically && !prevPosYCollider.collidesWith(wall) && collidesWith(wall))

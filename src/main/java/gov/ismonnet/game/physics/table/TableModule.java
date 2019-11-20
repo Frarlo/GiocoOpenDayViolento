@@ -67,22 +67,21 @@ public abstract class TableModule {
     }
 
     @Provides @IntoSet @GameSession
-    static WallEntity topLeftWall(WallEntityFactory wallFactory, Table table) {
+    static WallEntity topLeftWall(WallEntityFactory wallFactory, GoalEntity goal, Table table) {
         return wallFactory.create(
                 0,
                 0,
                 table.getWallThickness(),
-                (table.getHeight() - table.getGoalHeight()) / 2F);
+                goal.getPosY());
     }
 
     @Provides @IntoSet @GameSession
-    static WallEntity bottomLeftWall(WallEntityFactory wallFactory, Table table) {
-        final float goalPosY = (table.getHeight() - table.getGoalHeight()) / 2F;
+    static WallEntity bottomLeftWall(WallEntityFactory wallFactory, GoalEntity goal, Table table) {
         return wallFactory.create(
                 0,
-                goalPosY + table.getGoalHeight(),
+                goal.getPosY() + table.getGoalHeight(),
                 table.getWallThickness(),
-                table.getHeight() - (goalPosY + table.getGoalHeight()));
+                table.getHeight() - (goal.getPosY() + goal.getHeight()));
     }
 
     // TODO: temp

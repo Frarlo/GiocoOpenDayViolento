@@ -1,6 +1,6 @@
 package gov.ismonnet.game.physics.collider;
 
-import gov.ismonnet.game.util.SuppliedRectangle2D;
+import gov.ismonnet.util.SuppliedRectangle2D;
 
 import java.awt.geom.Rectangle2D;
 import java.util.Collection;

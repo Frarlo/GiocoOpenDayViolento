@@ -1,7 +1,7 @@
 package gov.ismonnet.game.renderer;
 
 import dagger.MapKey;
-import gov.ismonnet.game.util.ScaledResolution;
+import gov.ismonnet.util.ScaledResolution;
 
 public interface Screen<T extends RenderContext> {
 

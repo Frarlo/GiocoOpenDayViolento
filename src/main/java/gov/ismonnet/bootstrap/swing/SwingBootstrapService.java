@@ -31,7 +31,9 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
 
     private final SwingWindow window;
 
+    private final Color actualBackgroundColor;
     private final Image backgroundImg;
+
     private final ButtonsPanel buttonsPanel;
 
     private AtomicReference<CompletableFuture<NetSide>> choiceFuture = new AtomicReference<>();
@@ -45,6 +47,7 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
         // Make the panel background transparent
         // as I'm gonna render an image on it
         setOpaque(true);
+        actualBackgroundColor = getBackground();
         setBackground(new Color(0, 0, 0, 0));
 
         buttonsPanel = new ButtonsPanel(
@@ -79,8 +82,8 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
             throw new AssertionError("Swing did not create a Graphics2D object");
 
         final SwingGraphics g2d = new SwingGraphics((Graphics2D) g);
-        g2d.setBackground(Color.white);
-        g2d.clearRect(0, 0, 0, 0);
+        g2d.setColor(actualBackgroundColor);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
         g2d.drawImage(backgroundImg, imgX, imgY, imgWidth, imgHeight, null);
 
         // Draw the actual component
@@ -89,22 +92,26 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
 
     private class ResizeHandler extends ComponentAdapter {
         public void componentResized(ComponentEvent e) {
-            final float imgRatio = getWidth() < getHeight() ?
-                    (float) backgroundImg.getWidth(null) / getWidth() :
-                    (float) backgroundImg.getHeight(null) / getHeight();
-            imgWidth = backgroundImg.getWidth(null) / imgRatio;
-            imgHeight = backgroundImg.getHeight(null) / imgRatio;
-            imgX = (getWidth() - imgWidth) / 2F;
-            imgY = (getHeight() - imgHeight) / 2F;
+            SwingUtilities.invokeLater(() -> {
+                final float imgRatio = getWidth() < getHeight() ?
+                        (float) backgroundImg.getWidth(null) / getWidth() :
+                        (float) backgroundImg.getHeight(null) / getHeight();
+                imgWidth = backgroundImg.getWidth(null) / imgRatio;
+                imgHeight = backgroundImg.getHeight(null) / imgRatio;
+                imgX = (getWidth() - imgWidth) / 2F;
+                imgY = (getHeight() - imgHeight) / 2F;
 
-            // box : img = actualBox : actualImg
-            // actualBox = box * actualImg / img
-            buttonsPanel.setBounds(
-                    (int) (imgX + BUTTONS_BOX_X * imgWidth / BACKGROUND_IMG_WIDTH),
-                    (int) (imgY + BUTTONS_BOX_Y * imgHeight / BACKGROUND_IMG_HEIGHT),
-                    (int) (BUTTONS_BOX_WIDTH * imgWidth / BACKGROUND_IMG_WIDTH),
-                    (int) (BUTTONS_BOX_HEIGHT * imgHeight / BACKGROUND_IMG_HEIGHT));
-            buttonsPanel.revalidate();
+                // box : img = actualBox : actualImg
+                // actualBox = box * actualImg / img
+                buttonsPanel.setBounds(
+                        (int) (imgX + BUTTONS_BOX_X * imgWidth / BACKGROUND_IMG_WIDTH),
+                        (int) (imgY + BUTTONS_BOX_Y * imgHeight / BACKGROUND_IMG_HEIGHT),
+                        (int) (BUTTONS_BOX_WIDTH * imgWidth / BACKGROUND_IMG_WIDTH),
+                        (int) (BUTTONS_BOX_HEIGHT * imgHeight / BACKGROUND_IMG_HEIGHT));
+
+                revalidate();
+                repaint();
+            });
         }
     }
 }
