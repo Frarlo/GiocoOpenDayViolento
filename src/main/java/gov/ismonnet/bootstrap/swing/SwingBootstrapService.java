@@ -1,6 +1,8 @@
 package gov.ismonnet.bootstrap.swing;
 
+import gov.ismonnet.bootstrap.Bootstrap;
 import gov.ismonnet.bootstrap.BootstrapService;
+import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.swing.SwingGraphics;
 import gov.ismonnet.swing.SwingWindow;
 import gov.ismonnet.util.SneakyThrow;
@@ -40,7 +42,10 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
 
     private float imgX, imgY, imgWidth, imgHeight;
 
-    @Inject SwingBootstrapService(SwingWindow window, Image backgroundImg) {
+    @Inject SwingBootstrapService(SwingWindow window,
+                                  Image backgroundImg,
+                                  @Bootstrap LifeCycleService bootstrapLifecycle) {
+
         this.window = window;
         this.backgroundImg = backgroundImg;
 
@@ -60,7 +65,8 @@ public class SwingBootstrapService extends JPanel implements BootstrapService {
                     final CompletableFuture<NetSide> choiceFuture0;
                     if((choiceFuture0 = choiceFuture.getAndSet(null)) != null)
                         choiceFuture0.complete(NetSide.CLIENT);
-                });
+                },
+                e -> SneakyThrow.runUnchecked(bootstrapLifecycle::stop));
         add(buttonsPanel);
 
         setLayout(null);

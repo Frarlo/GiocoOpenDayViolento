@@ -17,10 +17,12 @@ class ButtonsPanel extends JPanel {
 
     private final Consumer<ActionEvent> onServer;
     private final Consumer<ActionEvent> onClient;
+    private final Consumer<ActionEvent> onExit;
 
-    ButtonsPanel(Consumer<ActionEvent> onServer, Consumer<ActionEvent> onClient) {
+    ButtonsPanel(Consumer<ActionEvent> onServer, Consumer<ActionEvent> onClient, Consumer<ActionEvent> onExit) {
         this.onServer = onServer;
         this.onClient = onClient;
+        this.onExit = onExit;
 
         initComponents();
     }
@@ -33,6 +35,10 @@ class ButtonsPanel extends JPanel {
         onServer.accept(e);
     }
 
+    private void exitBtnActionPerformed(ActionEvent e) {
+        onExit.accept(e);
+    }
+
     @SuppressWarnings("ALL")
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -40,6 +46,7 @@ class ButtonsPanel extends JPanel {
         JPanel innerPanel = new JPanel();
         JButton serverBtn = new JButton();
         JButton clientBtn = new JButton();
+        exitBtn = new JButton();
 
         //======== this ========
         setBorder(new LineBorder(Color.darkGray, 1, true));
@@ -59,6 +66,11 @@ class ButtonsPanel extends JPanel {
             clientBtn.setText("Connettiti");
             clientBtn.addActionListener(e -> clientBtnActionPerformed(e));
             innerPanel.add(clientBtn);
+
+            //---- exitBtn ----
+            exitBtn.setText("Esci");
+            exitBtn.addActionListener(e -> exitBtnActionPerformed(e));
+            innerPanel.add(exitBtn);
         }
         add(innerPanel);
         // JFormDesigner - End of component initialization  //GEN-END:initComponents
@@ -66,5 +78,6 @@ class ButtonsPanel extends JPanel {
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
     // Generated using JFormDesigner Evaluation license - unknown
+    private JButton exitBtn;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 }

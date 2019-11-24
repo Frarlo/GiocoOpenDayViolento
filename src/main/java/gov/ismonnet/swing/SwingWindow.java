@@ -40,6 +40,7 @@ public class SwingWindow extends JFrame implements LifeCycle {
         mouseGrabHandler = new MouseGrabHandler(this);
         Toolkit.getDefaultToolkit().addAWTEventListener(mouseGrabHandler,
                 AWTEvent.FOCUS_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+        Toolkit.getDefaultToolkit().addAWTEventListener(new FullscreenHandler(), AWTEvent.KEY_EVENT_MASK);
         // Hide cursor for this panel
         // Thanks to https://stackoverflow.com/a/10687248 and https://stackoverflow.com/a/1984117
         blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
@@ -122,17 +123,23 @@ public class SwingWindow extends JFrame implements LifeCycle {
                 focusGained((FocusEvent) event);
         }
 
+        private void focusGained(FocusEvent e) {
+            if(isMouseGrabbed)
+                centerCursor();
+        }
+
+        private void centerCursor() {
+            // Move the mouse back to the center
+            final Point p = window.getLocationOnScreen();
+            robot.mouseMove( (int) p.getX() + window.getWidth() / 2, (int) p.getY() + window.getHeight() / 2);
+        }
+
         private void mouseDragged(MouseEvent e) {
             onMouseMoved(e);
         }
 
         private void mouseMoved(MouseEvent e) {
             onMouseMoved(e);
-        }
-
-        private void focusGained(FocusEvent e) {
-            if(isMouseGrabbed)
-                centerCursor();
         }
 
         private void onMouseMoved(MouseEvent e) {
@@ -150,11 +157,38 @@ public class SwingWindow extends JFrame implements LifeCycle {
 //            final int moveY = e.getY() - window.getHeight() / 2;
 //            System.out.println("moved: " + moveX + " " + moveY);
         }
+    }
 
-        private void centerCursor() {
-            // Move the mouse back to the center
-            final Point p = window.getLocationOnScreen();
-            robot.mouseMove( (int) p.getX() + window.getWidth() / 2, (int) p.getY() + window.getHeight() / 2);
+    class FullscreenHandler implements AWTEventListener {
+
+        private boolean isFullScreen;
+        private Rectangle bounds;
+
+        @Override
+        public void eventDispatched(AWTEvent event) {
+            if(event.getID() == KeyEvent.KEY_PRESSED)
+                keyPressed((KeyEvent) event);
+        }
+
+        private void keyPressed(KeyEvent e) {
+            if(e.getKeyCode() != KeyEvent.VK_F11)
+                return;
+
+            isFullScreen = !isFullScreen;
+            if(isFullScreen) {
+                bounds = getBounds();
+
+                SwingWindow.super.dispose();
+                setUndecorated(true);
+                setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                setVisible(true);
+            } else {
+                SwingWindow.super.dispose();
+                setUndecorated(false);
+                setExtendedState(getExtendedState() & ~JFrame.MAXIMIZED_BOTH);
+                setBounds(bounds);
+                setVisible(true);
+            }
         }
     }
 }
