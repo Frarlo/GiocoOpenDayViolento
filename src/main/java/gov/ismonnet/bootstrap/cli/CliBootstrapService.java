@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-public // TODO: temp
 class CliBootstrapService implements BootstrapService {
 
     private final PrintStream out;

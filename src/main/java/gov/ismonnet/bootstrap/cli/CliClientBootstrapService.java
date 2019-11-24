@@ -2,6 +2,7 @@ package gov.ismonnet.bootstrap.cli;
 
 import gov.ismonnet.bootstrap.ClientBootstrapService;
 import gov.ismonnet.bootstrap.DefaultPort;
+import gov.ismonnet.lifecycle.LifeCycleService;
 
 import javax.inject.Inject;
 import java.io.InputStream;
@@ -47,7 +48,7 @@ class CliClientBootstrapService implements ClientBootstrapService {
     }
 
     @Override
-    public void startWaiting() {
+    public void startWaiting(LifeCycleService lifeCycleService) {
         out.println("Connecting to the server...");
     }
 

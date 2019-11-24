@@ -1,6 +1,5 @@
 package gov.ismonnet.bootstrap;
 
-import gov.ismonnet.bootstrap.swing.UndecidedException;
 import gov.ismonnet.game.GameComponent;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.lifecycle.EagerInit;
@@ -14,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -97,7 +97,7 @@ public class Bootstrapper {
                 netService = serverComponent.netService();
                 netLifeCycle = serverComponent.lifeCycle();
 
-                serverBootstrapService.startWaiting();
+                serverBootstrapService.startWaiting(netLifeCycle);
                 netLifeCycle.beforeStop(serverBootstrapService::stopWaiting);
 
                 break;
@@ -110,7 +110,7 @@ public class Bootstrapper {
                 netService = clientComponent.netService();
                 netLifeCycle = clientComponent.lifeCycle();
 
-                clientBootstrapService.startWaiting();
+                clientBootstrapService.startWaiting(netLifeCycle);
                 netLifeCycle.afterStop(clientBootstrapService::stopWaiting);
 
                 break;
@@ -131,6 +131,8 @@ public class Bootstrapper {
             netLifeCycle.start();
         } catch (InterruptedException ex) {
             throw ex;
+        } catch (CancellationException ex) {
+            throw new UndecidedException();
         } catch (Throwable t) {
             LOGGER.fatal("Exception while starting net lifecycle", t);
 

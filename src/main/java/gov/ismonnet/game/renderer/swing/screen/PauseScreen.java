@@ -108,7 +108,7 @@ public class PauseScreen extends BaseScreen {
             ctx.textSize(27);
             this.fontMetrics = ctx.getFontMetrics();
 
-            ctx.setColor(isHovered() ? Color.orange : Color.white);
+            ctx.setColor(!isHovered() ? Color.white : Color.orange);
             ctx.drawString(text, x, y);
         }
 

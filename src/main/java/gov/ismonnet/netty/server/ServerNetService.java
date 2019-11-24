@@ -51,7 +51,7 @@ public class ServerNetService implements NetService, LifeCycle {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    private ChannelFuture bindFuture;
+    private CompletableFuture<Void> bindFuture;
 
     private CompletableFuture<Channel> clientFuture;
     private Channel clientChannel;
@@ -96,28 +96,48 @@ public class ServerNetService implements NetService, LifeCycle {
 
     @Override
     public void start() throws Exception {
-        LOGGER.trace("Waiting for previous socket to release...");
+        bindFuture = new CompletableFuture<>();
+
+        LOGGER.trace("[Start] Waiting for previous socket to release...");
         SHUT_DOWN_FUTURE.get();
-        LOGGER.trace("Binding new socket...");
+        LOGGER.trace("[Start] Binding new socket...");
 
         bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
 
-        clientFuture = new CompletableFuture<>();
-        bindFuture = bootstrap
-                .group(bossGroup, workerGroup)
-                .bind()
-                .sync();
+        try {
+            clientFuture = new CompletableFuture<>();
+            bootstrap.group(bossGroup, workerGroup)
+                    .bind()
+                    .sync()
+                    .addListener(future -> {
+                        if(future.isSuccess())
+                            bindFuture.complete(null);
+                        else
+                            bindFuture.completeExceptionally(future.cause());
+                    });
 
-        clientChannel = clientFuture.get();
+            clientChannel = clientFuture.get();
+        } finally {
+            clientFuture = null;
+        }
     }
 
     @Override
-    public void stop() {
+    public void stop() throws Exception {
+        LOGGER.trace("[Stop] Waiting for previous socket to release...");
+        SHUT_DOWN_FUTURE.get();
+        LOGGER.trace("[Stop] Waiting for new socket to bind...");
+        bindFuture.get();
+        LOGGER.trace("[Stop] Stopping...");
+
         isStopped = true;
+
+        if(clientFuture != null)
+            clientFuture.cancel(true);
+
 //        bossGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
 //        workerGroup.shutdownGracefully().await(SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
-
         final CompletableFuture<Void> future = new CompletableFuture<>();
         bossGroup.shutdownGracefully()
                 .addListener(f0 -> workerGroup.shutdownGracefully()
@@ -184,7 +204,8 @@ public class ServerNetService implements NetService, LifeCycle {
                 ctx.close();
             }
 
-            clientFuture.complete(ctx.channel());
+            if(clientFuture != null)
+                clientFuture.complete(ctx.channel());
             super.channelActive(ctx);
         }
 
