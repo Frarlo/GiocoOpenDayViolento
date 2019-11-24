@@ -53,6 +53,11 @@ public class SwingRenderService extends JPanel implements RenderService<SwingScr
                         getHeight(),
                         table.getWidth(),
                         table.getHeight());
+
+                if(screen != null) {
+                    screen.destroy();
+                    screen.init(scaledResolution);
+                }
             }
         });
 
@@ -63,6 +68,8 @@ public class SwingRenderService extends JPanel implements RenderService<SwingScr
     public void start() {
         setScreen(Screen.Type.GAME);
         window.setScreen(this);
+
+        requestFocus();
     }
 
     @Override

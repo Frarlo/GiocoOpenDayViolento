@@ -48,14 +48,12 @@ class GameScreen extends BaseScreen {
     }
 
     @Override
-    public void init(ScaledResolution scaledResolution) {
-        super.init(scaledResolution);
+    public void onInit(ScaledResolution scaledResolution) {
         window.setMouseGrabbed(true);
     }
 
     @Override
-    public void destroy() {
-        super.destroy();
+    public void onDestroy() {
         window.setMouseGrabbed(false);
     }
 
@@ -76,13 +74,13 @@ class GameScreen extends BaseScreen {
     }
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void onKeyPressed(KeyEvent e) {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
             renderService.setScreen(Type.PAUSE);
     }
 
     @Override
-    public void focusLost(FocusEvent e) {
+    public void onFocusLost(FocusEvent e) {
         renderService.setScreen(Type.PAUSE);
     }
 

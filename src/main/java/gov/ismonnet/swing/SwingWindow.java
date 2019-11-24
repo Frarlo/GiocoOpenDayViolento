@@ -38,8 +38,8 @@ public class SwingWindow extends JFrame implements LifeCycle {
         setLocationRelativeTo(null);
 
         mouseGrabHandler = new MouseGrabHandler(this);
-        addMouseMotionListener(mouseGrabHandler);
-        addFocusListener(mouseGrabHandler);
+        Toolkit.getDefaultToolkit().addAWTEventListener(mouseGrabHandler,
+                AWTEvent.FOCUS_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
         // Hide cursor for this panel
         // Thanks to https://stackoverflow.com/a/10687248 and https://stackoverflow.com/a/1984117
         blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(
@@ -100,7 +100,7 @@ public class SwingWindow extends JFrame implements LifeCycle {
         return mouseGrabHandler.isMouseGrabbed;
     }
 
-    static class MouseGrabHandler extends FocusAdapter implements MouseMotionListener {
+    static class MouseGrabHandler implements AWTEventListener {
 
         private final Window window;
         private final Robot robot;
@@ -113,24 +113,31 @@ public class SwingWindow extends JFrame implements LifeCycle {
         }
 
         @Override
-        public void mouseDragged(MouseEvent e) {
+        public void eventDispatched(AWTEvent event) {
+            if(event.getID() == MouseEvent.MOUSE_DRAGGED)
+                mouseDragged((MouseEvent) event);
+            else if(event.getID() == MouseEvent.MOUSE_MOVED)
+                mouseMoved((MouseEvent) event);
+            else if(event.getID() == FocusEvent.FOCUS_GAINED)
+                focusGained((FocusEvent) event);
+        }
+
+        private void mouseDragged(MouseEvent e) {
             onMouseMoved(e);
         }
 
-        @Override
-        public void mouseMoved(MouseEvent e) {
+        private void mouseMoved(MouseEvent e) {
             onMouseMoved(e);
         }
 
-        @Override
-        public void focusGained(FocusEvent e) {
+        private void focusGained(FocusEvent e) {
             if(isMouseGrabbed)
                 centerCursor();
         }
 
         private void onMouseMoved(MouseEvent e) {
             // Just if this window is focused
-            if(!isMouseGrabbed || !window.isActive())
+            if(!isMouseGrabbed || !window.isFocused())
                 return;
             // Thanks to https://stackoverflow.com/a/32159962
             // Moved by Robot, don't care
@@ -139,9 +146,9 @@ public class SwingWindow extends JFrame implements LifeCycle {
             // Move the mouse back to the center
             centerCursor();
             // Register the actual movement
-            final int moveX = e.getX() - window.getWidth() / 2;
-            final int moveY = e.getY() - window.getHeight() / 2;
-            System.out.println("moved: " + moveX + " " + moveY);
+//            final int moveX = e.getX() - window.getWidth() / 2;
+//            final int moveY = e.getY() - window.getHeight() / 2;
+//            System.out.println("moved: " + moveX + " " + moveY);
         }
 
         private void centerCursor() {
