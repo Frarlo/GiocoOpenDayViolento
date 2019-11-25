@@ -8,6 +8,8 @@ public interface PhysicsService {
 
     void handleTicks();
 
+    void handleMouse(float motionX, float motionY);
+
     Collection<Entity> getEntities();
 
     void spawnEntity(Entity entity);

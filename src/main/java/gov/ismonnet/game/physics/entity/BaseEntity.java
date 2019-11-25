@@ -12,6 +12,8 @@ public abstract class BaseEntity implements Entity {
     protected float posX, posY;
     protected float motionX, motionY;
 
+    protected boolean isImmovable;
+
     @Override
     public float getPosX() {
         return posX;
@@ -20,6 +22,11 @@ public abstract class BaseEntity implements Entity {
     @Override
     public float getPosY() {
         return posY;
+    }
+
+    @Override
+    public boolean isImmovable() {
+        return isImmovable;
     }
 
     @Override
@@ -37,6 +44,11 @@ public abstract class BaseEntity implements Entity {
     @Override
     public boolean collidesWith(Collider collider) {
         return this.collider.collidesWith(collider);
+    }
+
+    @Override
+    public Rectangle2D getCollision(Collider collider) {
+        return this.collider.getCollision(collider);
     }
 
     @Override

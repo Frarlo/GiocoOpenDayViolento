@@ -40,6 +40,7 @@ public abstract class SharedNetModule {
         temp.put(KickPacket.class, (byte) 1);
 
         temp.put(PuckPositionPacket.class, (byte) 2);
+        temp.put(GoalPacket.class, (byte) 3);
 
         return Collections.unmodifiableMap(temp);
     }
@@ -47,5 +48,10 @@ public abstract class SharedNetModule {
     @Provides @IntoMap @ClassKey(PuckPositionPacket.class)
     static PacketParser puckPositionParser() {
         return PuckPositionPacket.PARSER;
+    }
+
+    @Provides @IntoMap @ClassKey(GoalPacket.class)
+    static PacketParser goalParser() {
+        return GoalPacket.PARSER;
     }
 }

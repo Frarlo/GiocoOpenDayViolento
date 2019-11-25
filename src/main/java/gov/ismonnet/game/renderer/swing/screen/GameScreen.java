@@ -7,12 +7,13 @@ import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderContext;
 import gov.ismonnet.game.renderer.swing.SwingRenderService;
 import gov.ismonnet.game.renderer.swing.SwingRenderer;
-import gov.ismonnet.util.ScaledResolution;
 import gov.ismonnet.swing.SwingWindow;
+import gov.ismonnet.util.ScaledResolution;
 
 import javax.inject.Inject;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -29,6 +30,8 @@ class GameScreen extends BaseScreen {
     private final Map<Class, SwingRenderer> renderers;
     private final SwingRenderer<Object> fallbackRenderer;
     private final SwingRenderer<? super Entity> axisAlignedBBsRenderer;
+
+    private boolean discardMouseValue;
 
     @Inject GameScreen(SwingWindow window,
                        SwingRenderService renderService,
@@ -50,6 +53,7 @@ class GameScreen extends BaseScreen {
     @Override
     public void onInit(ScaledResolution scaledResolution) {
         window.setMouseGrabbed(true);
+        discardMouseValue = true;
     }
 
     @Override
@@ -71,6 +75,22 @@ class GameScreen extends BaseScreen {
         });
 
         setupScaling(ctx, false);
+    }
+
+    @Override
+    protected void onMouseMoved(MouseEvent e) {
+        // Discard the first movement as its's needed to recenter the mouse
+        if(discardMouseValue) {
+            discardMouseValue = false;
+            return;
+        }
+        // Register the actual movement
+        float motionX = (e.getX() - window.getWidth() / 2F) * getScaledResolution().getWidthScaleFactor();
+        if(getSide() == RenderService.Side.RIGHT)
+            motionX = -motionX;
+        float motionY = (e.getY() - window.getHeight() / 2F) * getScaledResolution().getHeightScaleFactor();
+
+        physicsService.handleMouse(motionX, motionY);
     }
 
     @Override

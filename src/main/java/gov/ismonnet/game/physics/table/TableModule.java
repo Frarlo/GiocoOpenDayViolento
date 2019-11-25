@@ -16,6 +16,15 @@ public abstract class TableModule {
     abstract Table table(TableImpl impl);
 
     @Provides @GameSession
+    static PaddleEntity paddle(PaddleEntityFactory paddleFactory,
+                               Table table) {
+        return paddleFactory.create(
+                table.getWidth() / 3F,
+                table.getHeight() / 2F,
+                75);
+    }
+
+    @Provides @GameSession
     static PuckEntity puck(PuckEntityFactory puckFactory,
                            @Named("spawn_puck") boolean spawnPuck,
                            Table table) {
@@ -25,9 +34,9 @@ public abstract class TableModule {
                         0,
                         50, 0, 0) :
                 puckFactory.create(
-                        table.getWidth() / 2F,
+                        table.getWidth() / 3F * 2F,
                         table.getHeight() / 2F,
-                        50, 50, 50);
+                        50, 5, 0);
     }
 
     @Provides @GameSession
@@ -85,7 +94,6 @@ public abstract class TableModule {
     }
 
     // TODO: temp
-
 //    @Provides @IntoSet @GameSession
 //    static WallEntity rightWall(WallEntityFactory wallFactory, Table table) {
 //        return wallFactory.create(
@@ -94,15 +102,13 @@ public abstract class TableModule {
 //                table.getWallThickness(),
 //                table.getHeight());
 //    }
-
-    // TODO: temp
-
-    @Provides @IntoSet @GameSession
-    static WallEntity goalWall(WallEntityFactory wallFactory, Table table) {
-        return wallFactory.create(
-                0,
-                0,
-                table.getWallThickness(),
-                table.getHeight());
-    }
+//
+//    @Provides @IntoSet @GameSession
+//    static WallEntity goalWall(WallEntityFactory wallFactory, Table table) {
+//        return wallFactory.create(
+//                0,
+//                0,
+//                table.getWallThickness(),
+//                table.getHeight());
+//    }
 }

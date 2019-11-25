@@ -21,10 +21,17 @@ public class CompositeCollider implements Collider {
 
     @Override
     public boolean collidesWith(Collider collider) {
-        for(Collider internalCollider : colliders)
-            if(internalCollider.collidesWith(collider))
-                return true;
-        return false;
+        return getCollision(collider) != null;
+    }
+
+    @Override
+    public Rectangle2D getCollision(Collider collider) {
+        for(Collider internalCollider : colliders) {
+            final Rectangle2D res = internalCollider.getCollision(collider);
+            if(res != null)
+                return res;
+        }
+        return null;
     }
 
     @Override

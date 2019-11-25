@@ -103,13 +103,13 @@ public class SwingWindow extends JFrame implements LifeCycle {
 
     static class MouseGrabHandler implements AWTEventListener {
 
-        private final Window window;
+        private final JFrame frame;
         private final Robot robot;
 
         private boolean isMouseGrabbed;
 
-        MouseGrabHandler(Window window) {
-            this.window = window;
+        MouseGrabHandler(JFrame frame) {
+            this.frame = frame;
             this.robot = SneakyThrow.callUnchecked(Robot::new);
         }
 
@@ -129,9 +129,10 @@ public class SwingWindow extends JFrame implements LifeCycle {
         }
 
         private void centerCursor() {
-            // Move the mouse back to the center
-            final Point p = window.getLocationOnScreen();
-            robot.mouseMove( (int) p.getX() + window.getWidth() / 2, (int) p.getY() + window.getHeight() / 2);
+            final Point onScreen = frame.getContentPane().getLocationOnScreen();
+            robot.mouseMove(
+                    (int) onScreen.getX() + frame.getWidth() / 2,
+                    (int) onScreen.getY() + frame.getHeight() / 2);
         }
 
         private void mouseDragged(MouseEvent e) {
@@ -144,18 +145,14 @@ public class SwingWindow extends JFrame implements LifeCycle {
 
         private void onMouseMoved(MouseEvent e) {
             // Just if this window is focused
-            if(!isMouseGrabbed || !window.isFocused())
+            if(!isMouseGrabbed || !frame.isFocused())
                 return;
             // Thanks to https://stackoverflow.com/a/32159962
             // Moved by Robot, don't care
-            if(e.getX() == window.getWidth() / 2 && e.getY() == window.getHeight() / 2)
+            if(e.getX() == frame.getWidth() / 2 && e.getY() == frame.getHeight() / 2)
                 return;
             // Move the mouse back to the center
             centerCursor();
-            // Register the actual movement
-//            final int moveX = e.getX() - window.getWidth() / 2;
-//            final int moveY = e.getY() - window.getHeight() / 2;
-//            System.out.println("moved: " + moveX + " " + moveY);
         }
     }
 

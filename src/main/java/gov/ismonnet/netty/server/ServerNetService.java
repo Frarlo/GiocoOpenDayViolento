@@ -118,6 +118,9 @@ public class ServerNetService implements NetService, LifeCycle {
                     });
 
             clientChannel = clientFuture.get();
+        } catch (Exception ex) {
+            bindFuture.complete(null);
+            throw ex;
         } finally {
             clientFuture = null;
         }

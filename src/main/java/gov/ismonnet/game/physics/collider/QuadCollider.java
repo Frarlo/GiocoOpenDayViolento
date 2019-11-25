@@ -53,10 +53,15 @@ public class QuadCollider implements Collider {
 
     @Override
     public boolean collidesWith(Collider collider) {
+        return getCollision(collider) != null;
+    }
+
+    @Override
+    public Rectangle2D getCollision(Collider collider) {
         for(Rectangle2D rect : collider.getAxisAlignedBBs())
             if(rect.intersects(collisionBox))
-                return true;
-        return false;
+                return rect;
+        return null;
     }
 
     @Override

@@ -93,6 +93,11 @@ public class CircleCollider implements Collider {
     }
 
     @Override
+    public Rectangle2D getCollision(Collider collider) {
+        return getCurrCollider().getCollision(collider);
+    }
+
+    @Override
     public Collection<Rectangle2D> getAxisAlignedBBs() {
         return getCurrCollider().getAxisAlignedBBs();
     }

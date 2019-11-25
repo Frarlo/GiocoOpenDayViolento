@@ -8,6 +8,8 @@ public interface Entity extends Collider {
 
     float getPosY();
 
+    boolean isImmovable();
+
     float getMotionX();
 
     float getMotionY();

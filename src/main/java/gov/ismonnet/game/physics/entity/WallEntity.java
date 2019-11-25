@@ -18,6 +18,7 @@ public class WallEntity extends BaseEntity {
         this.posY = posY;
         this.width = width;
         this.height = height;
+        this.isImmovable = true;
     }
 
     @Override
@@ -31,5 +32,13 @@ public class WallEntity extends BaseEntity {
 
     public float getHeight() {
         return height;
+    }
+
+    @Override
+    public String toString() {
+        return "WallEntity{" +
+                "width=" + width +
+                ", height=" + height +
+                "} " + super.toString();
     }
 }

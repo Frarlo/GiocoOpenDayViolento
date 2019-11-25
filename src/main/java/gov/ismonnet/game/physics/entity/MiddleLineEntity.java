@@ -46,4 +46,9 @@ public class MiddleLineEntity extends WallEntity {
         if (!collides && puck.getPosX() > table.getWidth())
             puck.reset(table.getWidth() + puck.getRadius(), 0, 0, 0);
     }
+
+    @Override
+    public String toString() {
+        return "MiddleLineEntity{} " + super.toString();
+    }
 }

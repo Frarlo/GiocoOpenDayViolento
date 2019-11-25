@@ -23,11 +23,13 @@ class PhysicsServiceImpl implements PhysicsService, LifeCycle {
     private final Provider<GoalEntity> goal;
     private final Provider<MiddleLineEntity> middleLine;
     private final Provider<PuckEntity> puck;
+    private final Provider<PaddleEntity> paddle;
 
     @Inject PhysicsServiceImpl(Provider<Set<WallEntity>> walls,
                                Provider<GoalEntity> goal,
                                Provider<MiddleLineEntity> middleLine,
                                Provider<PuckEntity> puck,
+                               Provider<PaddleEntity> paddle,
                                LifeCycleService lifeCycleService) {
         this.ticksTimer = new Timer();
 
@@ -38,6 +40,7 @@ class PhysicsServiceImpl implements PhysicsService, LifeCycle {
         this.goal = goal;
         this.middleLine = middleLine;
         this.puck = puck;
+        this.paddle = paddle;
 
         lifeCycleService.register(this);
     }
@@ -48,6 +51,7 @@ class PhysicsServiceImpl implements PhysicsService, LifeCycle {
         spawnEntity(goal.get());
         spawnEntity(middleLine.get());
         spawnEntity(puck.get());
+        spawnEntity(paddle.get());
     }
 
     @Override
@@ -62,6 +66,14 @@ class PhysicsServiceImpl implements PhysicsService, LifeCycle {
 
         if(ticks > 0)
             ticksTimer.reset();
+    }
+
+    @Override
+    public void handleMouse(float motionX, float motionY) {
+        final PaddleEntity paddle = this.paddle.get();
+
+        paddle.setPosX(paddle.getPosX() + motionX);
+        paddle.setPosY(paddle.getPosY() + motionY);
     }
 
     private void onTick() {

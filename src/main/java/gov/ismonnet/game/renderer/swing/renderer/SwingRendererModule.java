@@ -7,6 +7,7 @@ import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 import gov.ismonnet.game.GameSession;
 import gov.ismonnet.game.physics.entity.Entity;
+import gov.ismonnet.game.physics.entity.PaddleEntity;
 import gov.ismonnet.game.physics.entity.PuckEntity;
 import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.renderer.swing.SwingRenderer;
@@ -28,6 +29,15 @@ public abstract class SwingRendererModule {
     static SwingRenderer<? super Entity> axisAlignedBBsRenderer(AxisAlignedBBsRenderer renderer,
                                                                 EmptyRenderer emptyRenderer) {
         return DRAW_COLLISION_BOXES ? renderer : emptyRenderer;
+    }
+
+    @Binds @IntoMap
+    @ClassKey(PaddleEntity.class)
+    abstract SwingRenderer paddleRenderer(PaddleRenderer puckRenderer);
+
+    @Provides @Named("paddle_texture")
+    static BufferedImage paddleTexture(@Ripped ResourceService resourceService) {
+        return resourceService.getImageResources("ripped/paddle.png");
     }
 
     @Binds @IntoMap
