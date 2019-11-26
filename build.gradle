@@ -24,13 +24,13 @@ dependencies {
     compile 'com.google.dagger:dagger:2.24'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
-    compile 'com.google.auto.factory:auto-factory:1.0-beta6'
+    compileOnly 'com.episode6.hackit.auto.factory:auto-factory-annotations:1.0-beta5'
     annotationProcessor 'com.google.auto.factory:auto-factory:1.0-beta6'
 
     // Logging
 
     compile 'org.apache.logging.log4j:log4j-api:2.12.1'
-    implementation 'org.apache.logging.log4j:log4j-core:2.12.1'
+    runtimeOnly 'org.apache.logging.log4j:log4j-core:2.12.1'
 
     // Swing
 
@@ -38,7 +38,7 @@ dependencies {
 }
 
 jar {
-    from configurations.compileClasspath.asFileTree.files.collect {
+    from configurations.runtimeClasspath.asFileTree.files.collect {
         zipTree(it)
     }
 

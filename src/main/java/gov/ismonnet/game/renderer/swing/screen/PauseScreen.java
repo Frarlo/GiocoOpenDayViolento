@@ -1,6 +1,5 @@
 package gov.ismonnet.game.renderer.swing.screen;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import gov.ismonnet.bootstrap.Bootstrap;
 import gov.ismonnet.game.renderer.swing.SwingRenderContext;
 import gov.ismonnet.game.renderer.swing.SwingRenderService;
@@ -54,8 +53,11 @@ public class PauseScreen extends BaseScreen {
         final float gap = 10;
         final float height = (bHeight + gap) * buttons.size();
 
-        final AtomicDouble y = new AtomicDouble((scaledResolution.getHeight() - height) / 2F);
-        buttons.forEach(b -> b.y = (float) y.getAndAdd(bHeight + gap));
+        final float[] y = { (scaledResolution.getHeight() - height) / 2F };
+        buttons.forEach(b -> {
+            b.y = y[0];
+            y[0] += bHeight + gap;
+        });
     }
 
     @Override
