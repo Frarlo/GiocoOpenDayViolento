@@ -22,6 +22,8 @@ public class PuckEntity extends CircleEntity {
     private final Table table;
     private final Lazy<GoalEntity> goalEntityLazy;
 
+    private float motionX, motionY;
+
     @Inject PuckEntity(float startX, float startY,
                        float radius,
                        float motionX, float motionY,
@@ -108,6 +110,7 @@ public class PuckEntity extends CircleEntity {
     @Listener
     protected EventListener<PuckPositionPacket> onPuckPos = new SyncListener<>(packet -> {
         setPos(packet.getPosX(), packet.getPosY());
+
         this.motionX = packet.getMotionX();
         this.motionY = packet.getMotionY();
     });
@@ -120,7 +123,30 @@ public class PuckEntity extends CircleEntity {
     }
 
     @Override
+    public float getMotionX() {
+        return motionX;
+    }
+
+    @Override
+    public float getMotionY() {
+        return motionY;
+    }
+
+    @Override
+    public void setMotionX(float motionX) {
+        this.motionX = motionX;
+    }
+
+    @Override
+    public void setMotionY(float motionY) {
+        this.motionY = motionY;
+    }
+
+    @Override
     public String toString() {
-        return "PuckEntity{} " + super.toString();
+        return "PuckEntity{" +
+                "motionX=" + motionX +
+                ", motionY=" + motionY +
+                "} " + super.toString();
     }
 }

@@ -17,6 +17,8 @@ public class MiddleLineEntity extends WallEntity {
 
     private final NetService netService;
 
+    private boolean sendResetPacket = false;
+
     @Inject MiddleLineEntity(float posX, float posY,
                              float width, float height,
                              @Provided Table table,
@@ -43,8 +45,19 @@ public class MiddleLineEntity extends WallEntity {
                     -puck.getMotionX(),
                     puck.getMotionY()));
 
-        if (!collides && puck.getPosX() > table.getWidth())
+        if (!collides && puck.getPosX() > table.getWidth()) {
+            if(sendResetPacket)
+                netService.sendPacket(new PuckPositionPacket(
+                        table.getWidth() + table.getWidth() - puck.getPosX(),
+                        puck.getPosY(),
+                        -puck.getMotionX(),
+                        puck.getMotionY()));
+            sendResetPacket = false;
+
             puck.reset(table.getWidth() + puck.getRadius(), 0, 0, 0);
+        } else {
+            sendResetPacket = true;
+        }
     }
 
     @Override

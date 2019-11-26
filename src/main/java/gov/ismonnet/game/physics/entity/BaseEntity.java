@@ -10,9 +10,6 @@ public abstract class BaseEntity implements Entity {
     protected Collider collider;
 
     protected float posX, posY;
-    protected float motionX, motionY;
-
-    protected boolean isImmovable;
 
     @Override
     public float getPosX() {
@@ -22,21 +19,6 @@ public abstract class BaseEntity implements Entity {
     @Override
     public float getPosY() {
         return posY;
-    }
-
-    @Override
-    public boolean isImmovable() {
-        return isImmovable;
-    }
-
-    @Override
-    public float getMotionX() {
-        return motionX;
-    }
-
-    @Override
-    public float getMotionY() {
-        return motionY;
     }
 
     public abstract void tick();

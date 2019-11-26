@@ -18,12 +18,10 @@ public class WallEntity extends BaseEntity {
         this.posY = posY;
         this.width = width;
         this.height = height;
-        this.isImmovable = true;
     }
 
     @Override
     public void tick() {
-        this.motionX = this.motionY = 0;
     }
 
     public float getWidth() {

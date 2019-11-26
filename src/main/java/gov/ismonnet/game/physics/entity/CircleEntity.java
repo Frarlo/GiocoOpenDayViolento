@@ -6,7 +6,7 @@ import gov.ismonnet.game.physics.collider.CircleCollider;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
 
-abstract class CircleEntity extends BaseEntity {
+abstract class CircleEntity extends BaseEntity implements MovableEntity {
 
     protected final Lazy<Set<Entity>> collidingEntitiesLazy;
     protected final float radius;
@@ -14,7 +14,6 @@ abstract class CircleEntity extends BaseEntity {
     CircleEntity(float startX, float startY,
                  float radius,
                  Lazy<Set<Entity>> collidingEntitiesLazy) {
-
         this.collider = new CircleCollider(this::getPosX, this::getPosY, () -> radius);
 
         this.collidingEntitiesLazy = collidingEntitiesLazy;
@@ -116,45 +115,31 @@ abstract class CircleEntity extends BaseEntity {
                             posY + distY;
                 }
             }
+            // If first collision, revert motion dir
+            if(changeMotionX) {
+                if(!hasCollidedHorizontally)
+                    setMotionX(-getMotionX());
+                hasCollidedHorizontally = true;
+            }
+            if(changeMotionY) {
+                if (!hasCollidedVertically)
+                    setMotionY(-getMotionY());
+                hasCollidedVertically = true;
+            }
+            // Add motion if the other entity was also moving
+            if(!(entity instanceof MovableEntity))
+                continue;
+            final MovableEntity other = (MovableEntity) entity;
 
             if(changeMotionX) {
-                // If first collision, revert motion dir
-                if(!hasCollidedHorizontally)
-                    this.motionX = -this.motionX;
-                hasCollidedHorizontally = true;
-                // Add motion if the other entity was also moving
-                if(!entity.isImmovable()) {
-                    final float currMotionX = getMotionX();
-                    this.motionX += entity.getMotionX();
-
-                    if(entity instanceof BaseEntity) {
-                        final BaseEntity other = (BaseEntity) entity;
-                        // Make the two go in the same dir
-//                        if(isRightwards != other.motionX > 0)
-//                            other.motionX = -entity.getMotionX();
-                        other.motionX += currMotionX;
-                    }
-                }
+                final float currMotionX = getMotionX();
+                setMotionX(getMotionX() + other.getMotionX());
+                other.setMotionX(other.getMotionX() + currMotionX);
             }
-
             if(changeMotionY) {
-                // If first collision, revert motion dir
-                if(!hasCollidedVertically)
-                    this.motionY = -this.motionY;
-                hasCollidedVertically = true;
-                // Add motion if the other entity was also moving
-                if(!entity.isImmovable()) {
-                    final float currMotionY = getMotionY();
-                    this.motionY += entity.getMotionY();
-
-                    if(entity instanceof BaseEntity) {
-                        final BaseEntity other = (BaseEntity) entity;
-                        // Make the two go in the same dir
-//                        if(isDownwards != (other.motionY > 0))
-//                            other.motionY = -entity.getMotionY();
-                        other.motionY += currMotionY;
-                    }
-                }
+                final float currMotionY = getMotionY();
+                setMotionY(getMotionY() + other.getMotionY());
+                other.setMotionY(other.getMotionY() + currMotionY);
             }
         }
     }

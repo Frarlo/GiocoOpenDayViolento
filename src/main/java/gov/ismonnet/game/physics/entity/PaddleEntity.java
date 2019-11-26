@@ -82,6 +82,14 @@ public class PaddleEntity extends CircleEntity {
     }
 
     @Override
+    public void setMotionX(float motionX) {
+    }
+
+    @Override
+    public void setMotionY(float motionY) {
+    }
+
+    @Override
     public String toString() {
         return "PaddleEntity{" +
                 "prevPosX=" + prevPosX +
