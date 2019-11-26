@@ -71,9 +71,7 @@ class PhysicsServiceImpl implements PhysicsService, LifeCycle {
     @Override
     public void handleMouse(float motionX, float motionY) {
         final PaddleEntity paddle = this.paddle.get();
-
-        paddle.setPosX(paddle.getPosX() + motionX);
-        paddle.setPosY(paddle.getPosY() + motionY);
+        paddle.setPos(paddle.getPosX() + motionX, paddle.getPosY() + motionY);
     }
 
     private void onTick() {

@@ -20,16 +20,19 @@ public class PuckEntity extends CircleEntity {
     private static final float MOTION_CAP = 30F;
 
     private final Table table;
+    private final Lazy<GoalEntity> goalEntityLazy;
 
     @Inject PuckEntity(float startX, float startY,
                        float radius,
                        float motionX, float motionY,
                        @Provided Table table,
                        @Provided Lazy<Set<Entity>> collidingEntitiesLazy,
+                       @Provided Lazy<GoalEntity> goalEntityLazy,
                        @Provided NetService netService) {
         super(startX, startY, radius, collidingEntitiesLazy);
 
         this.table = table;
+        this.goalEntityLazy = goalEntityLazy;
 
         this.posX = startX;
         this.posY = startY;
@@ -54,8 +57,7 @@ public class PuckEntity extends CircleEntity {
             }
         }
 
-        setPosX(getPosX() + motionX);
-        setPosY(getPosY() + motionY);
+        setPos(getPosX() + motionX, getPosY() + motionY);
 
         // Calculate the motion - 0.1F
 
@@ -69,6 +71,16 @@ public class PuckEntity extends CircleEntity {
     }
 
     @Override
+    protected void setPosX(float posXIn) {
+        super.setPosX(posXIn);
+
+        final GoalEntity goal = goalEntityLazy.get();
+        if(posY - radius < goal.getPosY() || posY + radius > goal.getPosY() + goal.getHeight())
+            if(posX - radius < 0)
+                posX = radius;
+    }
+
+    @Override
     protected void setPosY(float posYIn) {
         super.setPosY(posYIn);
 
@@ -78,10 +90,24 @@ public class PuckEntity extends CircleEntity {
             posY = table.getHeight() - radius;
     }
 
+    @Override
+    protected void setPos(float posXIn, float posYIn) {
+        super.setPos(posXIn, posYIn);
+
+        final GoalEntity goal = goalEntityLazy.get();
+        if(posY - radius < goal.getPosY() || posY + radius > goal.getPosY() + goal.getHeight())
+            if(posX - radius < 0)
+                posX = radius;
+
+        if(posY - radius < 0)
+            posY = radius;
+        if(posY + radius > table.getHeight())
+            posY = table.getHeight() - radius;
+    }
+
     @Listener
     protected EventListener<PuckPositionPacket> onPuckPos = new SyncListener<>(packet -> {
-        this.posX = packet.getPosX();
-        this.posY = packet.getPosY();
+        setPos(packet.getPosX(), packet.getPosY());
         this.motionX = packet.getMotionX();
         this.motionY = packet.getMotionY();
     });

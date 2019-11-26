@@ -51,11 +51,24 @@ public class PaddleEntity extends CircleEntity {
             posY = table.getHeight() - radius;
     }
 
+    @Override
+    public void setPos(float posXIn, float posYIn) {
+        super.setPos(posXIn, posYIn);
+
+        if(posX - radius < 0)
+            posX = radius;
+        if(posX + radius > table.getWidth())
+            posX = table.getWidth() - radius;
+
+        if(posY - radius < 0)
+            posY = radius;
+        if(posY + radius > table.getHeight())
+            posY = table.getHeight() - radius;
+    }
+
     public void reset(float posX, float posY) {
-        setPosX(posX);
-        this.prevPosX = this.posX;
-        setPosY(posY);
-        this.prevPosY = this.posY;
+        this.prevPosX = this.posX = posX;
+        this.prevPosY = this.posY = posY;
     }
 
     @Override

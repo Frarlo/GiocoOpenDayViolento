@@ -119,6 +119,9 @@ public class PauseScreen extends BaseScreen {
         }
 
         public boolean isInButton(float x, float y) {
+            if(fontMetrics == null)
+                return false;
+
             final float width = fontMetrics.stringWidth(text);
             final float height = fontMetrics.getHeight();
 

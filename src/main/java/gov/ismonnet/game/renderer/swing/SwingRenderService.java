@@ -5,11 +5,14 @@ import com.google.auto.factory.Provided;
 import gov.ismonnet.game.physics.table.Table;
 import gov.ismonnet.game.renderer.RenderService;
 import gov.ismonnet.game.renderer.Screen;
-import gov.ismonnet.util.ScaledResolution;
 import gov.ismonnet.lifecycle.LifeCycle;
 import gov.ismonnet.lifecycle.LifeCycleService;
 import gov.ismonnet.swing.BackgroundColor;
 import gov.ismonnet.swing.SwingWindow;
+import gov.ismonnet.util.ScaledResolution;
+import gov.ismonnet.util.SneakyThrow;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -22,11 +25,14 @@ import java.util.Map;
 @AutoFactory
 public class SwingRenderService extends JPanel implements RenderService<SwingScreen>, LifeCycle {
 
+    private static final Logger LOGGER = LogManager.getLogger(SwingRenderService.class);
+
     private Side side;
 
     private final SwingWindow window;
-    private final Color backgroundColor;
+    private final LifeCycleService lifeCycleService;
 
+    private final Color backgroundColor;
     private ScaledResolution scaledResolution;
 
     private final Map<Screen.Type, Provider<SwingScreen>> typeToScreen;
@@ -40,11 +46,12 @@ public class SwingRenderService extends JPanel implements RenderService<SwingScr
                                @Provided Map<Screen.Type, Provider<SwingScreen>> screens,
                                @Provided LifeCycleService lifeCycleService) {
         this.window = window;
-        this.backgroundColor = backgroundColor;
+        this.lifeCycleService = lifeCycleService;
 
         this.side = side;
         this.typeToScreen = screens;
 
+        this.backgroundColor = backgroundColor;
         this.scaledResolution = new ScaledResolution(getWidth(), getHeight(), table.getWidth(), table.getHeight());
         addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
@@ -120,7 +127,12 @@ public class SwingRenderService extends JPanel implements RenderService<SwingScr
         ctx.setBackground(backgroundColor);
         ctx.clearRect(0, 0, getWidth(), getHeight());
 
-        screen.render(ctx);
+        try {
+            screen.render(ctx);
+        } catch (Throwable t) {
+            LOGGER.fatal("Error while rendering screen", t);
+            SneakyThrow.runUnchecked(lifeCycleService::stop);
+        }
 
         repaint();
     }

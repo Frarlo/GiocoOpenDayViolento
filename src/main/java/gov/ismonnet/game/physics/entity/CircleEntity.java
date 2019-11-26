@@ -9,7 +9,6 @@ import java.util.Set;
 abstract class CircleEntity extends BaseEntity {
 
     protected final Lazy<Set<Entity>> collidingEntitiesLazy;
-
     protected final float radius;
 
     CircleEntity(float startX, float startY,
@@ -29,114 +28,170 @@ abstract class CircleEntity extends BaseEntity {
         return radius;
     }
 
-    protected void setPosX(float posXIn) {
+    protected void setPosX(float posX) {
+        setPos0(posX, posY);
+    }
+
+    protected void setPosY(float posY) {
+        setPos0(posX, posY);
+    }
+
+    protected void setPos(float posX, float posY) {
+        setPos0(posX, posY);
+    }
+
+    private void setPos0(float posXIn, float posYIn) {
+
+        final boolean isMotionX = posX != posXIn;
+        final boolean isMotionY = posY != posYIn;
+
+        if(!isMotionX && !isMotionY)
+            return;
+
         final boolean isRightwards = posXIn > posX;
+        final boolean isDownwards = posYIn > posY;
+
+        final float xDiff = posX - posXIn;
+        final float yDiff = posY - posYIn;
+
         this.posX = posXIn;
+        this.posY = posYIn;
 
         boolean hasCollidedHorizontally = false;
+        boolean hasCollidedVertically = false;
+
         for(Entity entity : collidingEntitiesLazy.get()) {
             if(entity == this)
                 continue;
 
-            boolean collided = false;
+            boolean changeMotionX = false;
+            boolean changeMotionY = false;
+
+            int failsafe = 0;
             Rectangle2D collision;
             while((collision = getCollision(entity)) != null) {
-                collided = true;
+                if(++failsafe >= 10)
+                    break;
+                // Hit horizontally
+                if(isMotionX && posY >= collision.getY() && posY <= collision.getMaxY()) {
+                    changeMotionX = true;
 
-                final double refX = (float) (isRightwards ?
-                        collision.getX() :
-                        collision.getMaxX());
-
-                final double dist;
-                if(posY >= collision.getY() && posY <= collision.getMaxY())
-                    dist = radius - Math.abs(posX - refX);
-                else {
-                    final double refY = Math.abs(posY - collision.getY()) < Math.abs(posY - collision.getMaxY()) ?
+                    final double refX = (float) (isRightwards ?
+                            collision.getX() :
+                            collision.getMaxX());
+                    final double dist = radius - Math.abs(posX - refX);
+                    this.posX = (float) (isRightwards ?
+                            posX - dist :
+                            posX + dist);
+                    continue;
+                }
+                // Hit vertically
+                if(isMotionY && posX >= collision.getX() && posX <= collision.getMaxX()) {
+                    changeMotionY = true;
+                    final double refY = isDownwards ?
                             collision.getY() :
                             collision.getMaxY();
-                    // (x - xc)^2 + (refY - yc)^2 = r^2
-                    // (x - xc)^2 = r^2 - (refY - yc)^2
-                    // x - xc = sqrt(r^2 - (refY - yc)^2)
-                    // x = sqrt(r^2 - (refY - yc)^2) + xc
-                    final double uncenteredX = Math.sqrt(radius * radius - Math.pow(refY - posY, 2));
-                    final double x = (isRightwards ? -uncenteredX : uncenteredX) + posX;
-                    dist = Math.abs(posX  - x) - Math.abs(posX  - refX);
+                    final double dist = radius - Math.abs(posY - refY);
+                    this.posY = (float) (isDownwards ?
+                            posY - dist :
+                            posY + dist);
+                    continue;
                 }
+                // Hit an angle
+                changeMotionX = changeMotionY = true;
 
-                this.posX = (float) (isRightwards ?
-                        posX - dist :
-                        posX + dist);
+                final float distX = adjustAngleX(isRightwards, collision);
+                final float distY = adjustAngleY(isDownwards, collision);
+
+                if(distX == 0 && distY == 0)
+                    break;
+
+                if(distX != 0 && (distY == 0 || Math.abs(xDiff) >= Math.abs(yDiff))) {
+                    this.posX = isRightwards ?
+                            posX - distX :
+                            posX + distX;
+                } else {
+                    this.posY = isDownwards ?
+                            posY - distY :
+                            posY + distY;
+                }
             }
 
-            if(collided) {
+            if(changeMotionX) {
                 // If first collision, revert motion dir
                 if(!hasCollidedHorizontally)
-                    motionX = -motionX;
+                    this.motionX = -this.motionX;
                 hasCollidedHorizontally = true;
                 // Add motion if the other entity was also moving
                 if(!entity.isImmovable()) {
-                    motionX += entity.getMotionX();
+                    final float currMotionX = getMotionX();
+                    this.motionX += entity.getMotionX();
 
-                    if(entity instanceof BaseEntity)
-                        ((BaseEntity) entity).motionX += getMotionX();
+                    if(entity instanceof BaseEntity) {
+                        final BaseEntity other = (BaseEntity) entity;
+                        // Make the two go in the same dir
+//                        if(isRightwards != other.motionX > 0)
+//                            other.motionX = -entity.getMotionX();
+                        other.motionX += currMotionX;
+                    }
+                }
+            }
+
+            if(changeMotionY) {
+                // If first collision, revert motion dir
+                if(!hasCollidedVertically)
+                    this.motionY = -this.motionY;
+                hasCollidedVertically = true;
+                // Add motion if the other entity was also moving
+                if(!entity.isImmovable()) {
+                    final float currMotionY = getMotionY();
+                    this.motionY += entity.getMotionY();
+
+                    if(entity instanceof BaseEntity) {
+                        final BaseEntity other = (BaseEntity) entity;
+                        // Make the two go in the same dir
+//                        if(isDownwards != (other.motionY > 0))
+//                            other.motionY = -entity.getMotionY();
+                        other.motionY += currMotionY;
+                    }
                 }
             }
         }
     }
 
-    protected void setPosY(float posYIn) {
-        final boolean isDownwards = posYIn > posY;
-        this.posY = posYIn;
+    private float adjustAngleX(boolean isRightwards, Rectangle2D collision) {
+        final float refX = (float) (isRightwards ?
+                collision.getX() :
+                collision.getMaxX());
+        // Closest point with x = refX
+        final float refY = (float) (Math.abs(posY - collision.getY()) < Math.abs(posY - collision.getMaxY()) ?
+                collision.getY() :
+                collision.getMaxY());
+        // (x - xc)^2 + (refY - yc)^2 = r^2
+        // (x - xc)^2 = r^2 - (refY - yc)^2
+        // x - xc = sqrt(r^2 - (refY - yc)^2)
+        // x = sqrt(r^2 - (refY - yc)^2) + xc
+        final float uncenteredX = (float) Math.sqrt(radius * radius - Math.pow(refY - posY, 2));
+        final float x = (isRightwards ? -uncenteredX : uncenteredX) + posX;
+        return Math.abs(posX  - x) - Math.abs(posX  - refX);
+    }
 
-        boolean hasCollidedVertically = false;
-        for(Entity entity : collidingEntitiesLazy.get()) {
-            if(entity == this)
-                continue;
-
-            boolean collided = false;
-            Rectangle2D collision;
-            while((collision = getCollision(entity)) != null) {
-                collided = true;
-
-                final double refY = isDownwards ?
-                        collision.getY() :
-                        collision.getMaxY();
-
-                final double dist;
-                if(posX >= collision.getX() && posX <= collision.getMaxX())
-                    dist = radius - Math.abs(posY - refY);
-                else {
-                    final double refX = (Math.abs(posX - collision.getX()) < Math.abs(posX - collision.getMaxX()) ?
-                            collision.getX() :
-                            collision.getMaxX());
-                    // (refX - xc)^2 + (y - yc)^2 = r^2
-                    // (y - yc)^2 = r^2 - (refX - xc)^2
-                    // y - yc = sqrt(r^2 - (refX - xc)^2)
-                    // y = sqrt(r^2 - (refX - xc)^2) + yc
-                    final double uncenteredY = Math.sqrt(radius * radius - Math.pow(refX - posX, 2));
-                    final double y = (isDownwards ? -uncenteredY : uncenteredY) + posY;
-                    dist = Math.abs(posY - y) - Math.abs(posY - refY);
-                }
-
-                this.posY = (float) (isDownwards ?
-                        posY - dist :
-                        posY + dist);
-            }
-
-            if(collided) {
-                // If first collision, revert motion dir
-                if(!hasCollidedVertically)
-                    motionY = -motionY;
-                hasCollidedVertically = true;
-                // Add motion if the other entity was also moving
-                if(!entity.isImmovable()) {
-                    motionY += entity.getMotionY();
-
-                    if(entity instanceof BaseEntity)
-                        ((BaseEntity) entity).motionY += getMotionY();
-                }
-            }
-        }
+    private float adjustAngleY(boolean isDownwards, Rectangle2D collision) {
+        final float refY = (float) (isDownwards ?
+                collision.getY() :
+                collision.getMaxY());
+        // Hit an angle
+        // Closest point with y = refY
+        final float refX = (float) (Math.abs(posX - collision.getX()) < Math.abs(posX - collision.getMaxX()) ?
+                collision.getX() :
+                collision.getMaxX());
+        // (refX - xc)^2 + (y - yc)^2 = r^2
+        // (y - yc)^2 = r^2 - (refX - xc)^2
+        // y - yc = sqrt(r^2 - (refX - xc)^2)
+        // y = sqrt(r^2 - (refX - xc)^2) + yc
+        final float uncenteredY = (float) Math.sqrt(radius * radius - Math.pow(refX - posX, 2));
+        final float y = (isDownwards ? -uncenteredY : uncenteredY) + posY;
+        return Math.abs(posY - y) - Math.abs(posY - refY);
     }
 
     @Override
