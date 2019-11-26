@@ -42,19 +42,30 @@ public class PuckEntity extends CircleEntity {
 
     @Override
     public void tick() {
-
-        motionX = Math.min(MOTION_CAP, Math.max(motionX, -MOTION_CAP));
-        motionY = Math.min(MOTION_CAP, Math.max(motionY, -MOTION_CAP));
+        // Using the theorem of similar triangles
+        // cap the max motion
+        {
+            final float motion = (float) Math.sqrt(motionX * motionX + motionY * motionY);
+            if(motion != 0) {
+                final float cappedMotion = Math.min(motion, MOTION_CAP);
+                // motion : cappedMotion = motionX : x
+                motionX = motionX * cappedMotion / motion;
+                motionY = motionY * cappedMotion / motion;
+            }
+        }
 
         setPosX(getPosX() + motionX);
-        motionX = motionX > 0 ?
-                Math.max(0, motionX - MOTION_STEP) :
-                Math.min(0, motionX + MOTION_STEP);
-
         setPosY(getPosY() + motionY);
-        motionY = motionY > 0 ?
-                Math.max(0, motionY - MOTION_STEP) :
-                Math.min(0, motionY + MOTION_STEP);
+
+        // Calculate the motion - 0.1F
+
+        final float motion = (float) Math.sqrt(motionX * motionX + motionY * motionY);
+        if(motion != 0) {
+            final float newMotion = Math.max(0, motion - MOTION_STEP);
+            // motion : newMotion = motionX : x
+            motionX = motionX * newMotion / motion;
+            motionY = motionY * newMotion / motion;
+        }
     }
 
     @Override
