@@ -32,7 +32,7 @@ public class CircleCollider implements Collider {
     private void makeCollider() {
         float radius = (float) this.radius.getAsDouble();
         final float diameter = 2F * radius;
-        final float radiusStep = diameter / 20;
+        final float radiusStep = diameter / 50;
 
         final List<Collider> colliders = new ArrayList<>();
         for(int i = 0; (i + 1) * radiusStep < diameter; i++) {
